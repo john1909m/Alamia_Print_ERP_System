@@ -1,0 +1,26 @@
+import { MATERIAL_TYPE_LABELS } from '@/constants/ar'
+
+export const materialsMockData = [
+  { id: 1, name: 'ورق كوشيه 80 جرام', type: 'paper', unit: 'رزمة', minStock: 50, currentStock: 120, description: 'ورق كوشيه للطباعة التجارية', createdAt: '2024-01-10' },
+  { id: 2, name: 'ورق كوشيه 135 جرام', type: 'paper', unit: 'رزمة', minStock: 40, currentStock: 85, description: '', createdAt: '2024-01-12' },
+  { id: 3, name: 'ورق بريستول', type: 'paper', unit: 'رزمة', minStock: 30, currentStock: 22, description: 'بطاقات وأغلفة فاخرة', createdAt: '2024-01-15' },
+  { id: 4, name: 'ورق أوفست 70 جرام', type: 'paper', unit: 'رزمة', minStock: 60, currentStock: 200, description: '', createdAt: '2024-01-18' },
+  { id: 5, name: 'ورق كرتون 300 جرام', type: 'paper', unit: 'رزمة', minStock: 25, currentStock: 0, description: 'تغليف وعلب', createdAt: '2024-02-01' },
+  { id: 6, name: 'حبر أسود', type: 'ink', unit: 'لتر', minStock: 20, currentStock: 45, description: 'حبر أوفست أسود', createdAt: '2024-02-05' },
+  { id: 7, name: 'حبر سماوي', type: 'ink', unit: 'لتر', minStock: 15, currentStock: 8, description: 'CMYK — Cyan', createdAt: '2024-02-08' },
+  { id: 8, name: 'حبر أحمر', type: 'ink', unit: 'لتر', minStock: 15, currentStock: 12, description: 'CMYK — Magenta', createdAt: '2024-02-08' },
+  { id: 9, name: 'حبر أصفر', type: 'ink', unit: 'لتر', minStock: 15, currentStock: 18, description: 'CMYK — Yellow', createdAt: '2024-02-08' },
+  { id: 10, name: 'حبر أزرق', type: 'ink', unit: 'لتر', minStock: 15, currentStock: 0, description: 'CMYK — Black variant', createdAt: '2024-02-10' },
+  { id: 11, name: 'بليت طباعة — مقاس A2', type: 'plate', unit: 'قطعة', minStock: 10, currentStock: 35, description: '', createdAt: '2024-02-15' },
+  { id: 12, name: 'بليت طباعة — مقاس A1', type: 'plate', unit: 'قطعة', minStock: 8, currentStock: 5, description: '', createdAt: '2024-02-18' },
+  { id: 13, name: 'لاصق تجليد', type: 'glue', unit: 'كيلو', minStock: 10, currentStock: 28, description: 'لاصق حراري للتجليد', createdAt: '2024-03-01' },
+  { id: 14, name: 'لاصق لصق', type: 'glue', unit: 'لتر', minStock: 12, currentStock: 6, description: '', createdAt: '2024-03-05' },
+  { id: 15, name: 'مذيب طباعة', type: 'chemical', unit: 'لتر', minStock: 20, currentStock: 55, description: 'تنظيف الماكينات', createdAt: '2024-03-10' },
+  { id: 16, name: 'مثبت طباعة', type: 'chemical', unit: 'لتر', minStock: 15, currentStock: 0, description: '', createdAt: '2024-03-12' },
+  { id: 17, name: 'فيلم تلميع', type: 'other', unit: 'رول', minStock: 10, currentStock: 14, description: 'تشطيب لامع', createdAt: '2024-03-20' },
+  { id: 18, name: 'رول فينيل 1.2 م', type: 'other', unit: 'رول', minStock: 8, currentStock: 3, description: 'بانرات ولوحات', createdAt: '2024-04-01' },
+  { id: 19, name: 'سلك تجليد', type: 'other', unit: 'صندوق', minStock: 20, currentStock: 42, description: '', createdAt: '2024-04-10' },
+  { id: 20, name: 'ورق فوتو 260 جرام', type: 'paper', unit: 'رزمة', minStock: 15, currentStock: 9, description: 'طباعة فوتوغرافية', createdAt: '2024-04-15' },
+  { id: 21, name: 'حبر UV', type: 'ink', unit: 'لتر', minStock: 10, currentStock: 16, description: 'طباعة UV', createdAt: '2024-05-01' },
+  { id: 22, name: 'بليت فليكسو', type: 'plate', unit: 'قطعة', minStock: 5, currentStock: 2, description: '', createdAt: '2024-05-10' },
+]

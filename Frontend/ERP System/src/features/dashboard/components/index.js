@@ -1,0 +1,8 @@
+export { WelcomeHeader } from './WelcomeHeader'
+export { StatCard } from './StatCard'
+export { SectionHeader } from './SectionHeader'
+export { DashboardCard, DashboardCardHeader, DashboardCardContent } from './DashboardCard'
+export { DashboardTable } from './DashboardTable'
+export { ActivityItem } from './ActivityItem'
+export { QuickActionCard } from './QuickActionCard'
+export { ChartPlaceholder } from './ChartPlaceholder'
