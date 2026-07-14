@@ -58,7 +58,7 @@ public class InkServiceImpl implements InkService {
         log.info("Fetching ink with id: {}", id);
         Ink ink = inkRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ink not found with id: " + id));
-        log.info("Ink found: {}", ink.getName());
+        log.info("Ink found: {}", ink.getMaterial().getName());
         return inkMapper.toDto(ink);
     }
 

@@ -1,6 +1,6 @@
 package com.spring.boot.dto;
 
-import java.util List;
+import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -20,6 +20,8 @@ public class ChemicalDto {
 
     @Positive(message = "Material ID must be positive")
     private Long material_id;
+
+    private String name;
 
     @Size(max = 500, message = "Chemical types must not exceed 500 characters")
     private List<String> chemicalTypes;

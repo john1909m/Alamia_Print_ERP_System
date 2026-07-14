@@ -1,47 +1,61 @@
-import { productsMockData } from '@/features/products/mock/productsData'
+import { apiClient, normalizePageResponse, normalizeEntityResponse } from '@/services/api'
+import { API_ENDPOINTS } from '@/services/api'
 
-const delay = (ms = 300) => new Promise((resolve) => setTimeout(resolve, ms))
-
-let store = productsMockData.map((item) => ({ ...item }))
+const mapProduct = (item = {}) => ({
+  ...item,
+  id: item.id,
+  productCode: item.code || item.productCode || '',
+  productName: item.name || item.productName || '-',
+  companyId: item.company_id || item.companyId || null,
+  companyName: item.companyName || item.company?.name || '',
+  category: item.type || item.category || '',
+  status: item.status || 'active',
+  description: item.notes || item.description || '',
+  createdAt: item.createdAt || item.created_at || '',
+  updatedAt: item.updatedAt || item.updated_at || '',
+})
 
 export const productService = {
   getAll: async () => {
-    await delay()
-    return Promise.resolve(store.map((item) => ({ ...item })))
+    const response = await apiClient.get(API_ENDPOINTS.products)
+    return normalizePageResponse(response.data).map(mapProduct)
   },
 
   getById: async (id) => {
-    await delay()
-    const product = store.find((p) => p.id === Number(id))
-    return Promise.resolve(product ? { ...product } : null)
+    const response = await apiClient.get(`${API_ENDPOINTS.products}/${id}`)
+    return mapProduct(normalizeEntityResponse(response.data))
   },
 
   create: async (data) => {
-    await delay()
-    const newProduct = {
-      id: Date.now(),
-      createdAt: new Date().toISOString().split('T')[0],
-      updatedAt: new Date().toISOString().split('T')[0],
+    const payload = {
+      name: data.productName || data.name,
+      code: data.productCode || data.code,
+      company_id: data.companyId || data.company_id,
+      type: data.category || data.type,
+      notes: data.description || data.notes || '',
+      status: data.status || 'active',
       ...data,
     }
-    store = [newProduct, ...store]
-    return Promise.resolve({ ...newProduct })
+    const response = await apiClient.post(API_ENDPOINTS.products, payload)
+    return mapProduct(normalizeEntityResponse(response.data))
   },
 
   update: async (id, data) => {
-    await delay()
-    store = store.map((item) =>
-      item.id === Number(id)
-        ? { ...item, ...data, id: item.id, updatedAt: new Date().toISOString().split('T')[0] }
-        : item
-    )
-    const updated = store.find((p) => p.id === Number(id))
-    return Promise.resolve({ ...updated })
+    const payload = {
+      name: data.productName || data.name,
+      code: data.productCode || data.code,
+      company_id: data.companyId || data.company_id,
+      type: data.category || data.type,
+      notes: data.description || data.notes || '',
+      status: data.status || 'active',
+      ...data,
+    }
+    const response = await apiClient.put(`${API_ENDPOINTS.products}/${id}`, payload)
+    return mapProduct(normalizeEntityResponse(response.data))
   },
 
   delete: async (id) => {
-    await delay()
-    store = store.filter((item) => item.id !== Number(id))
-    return Promise.resolve({ success: true, id: Number(id) })
+    await apiClient.delete(`${API_ENDPOINTS.products}/${id}`)
+    return { success: true, id: Number(id) }
   },
 }

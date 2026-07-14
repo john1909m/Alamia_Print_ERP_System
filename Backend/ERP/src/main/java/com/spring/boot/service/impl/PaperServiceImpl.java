@@ -58,7 +58,7 @@ public class PaperServiceImpl implements PaperService {
         log.info("Fetching paper with id: {}", id);
         Paper paper = paperRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Paper not found with id: " + id));
-        log.info("Paper found: {}", paper.getName());
+        log.info("Paper found: {}", paper.getMaterial().getName());
         return paperMapper.toDto(paper);
     }
 

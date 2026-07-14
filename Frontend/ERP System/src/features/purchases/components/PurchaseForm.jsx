@@ -16,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { suppliersMockData, materialsMockData } from '@/features/purchases/mock/purchasesData'
+import { supplierService } from '@/features/suppliers/services/supplierService'
+import { materialService } from '@/features/materials/services/materialService'
 
 const itemSchema = z.object({
   materialId: z.number().min(1, 'Material is required'),
@@ -37,8 +38,8 @@ const purchaseSchema = z.object({
 const emptyItem = () => ({ materialId: '', quantity: 1, unit: '', unitPrice: 1, totalPrice: 1 })
 
 export function PurchaseForm({ defaultValues, onSubmit }) {
-  const [materials] = useState(materialsMockData)
-  const [supplierOptions] = useState(suppliersMockData)
+  const [materials, setMaterials] = useState([])
+  const [supplierOptions, setSupplierOptions] = useState([])
   const [itemErrors, setItemErrors] = useState({})
 
   const {
@@ -62,6 +63,23 @@ export function PurchaseForm({ defaultValues, onSubmit }) {
 
   const watchedItems = watch('items', [])
   const watchedSupplierId = watch('supplierId')
+
+  useEffect(() => {
+    const loadOptions = async () => {
+      try {
+        const [suppliers, materialsResponse] = await Promise.all([
+          supplierService.getAll(),
+          materialService.getAll(),
+        ])
+        setSupplierOptions(suppliers)
+        setMaterials(materialsResponse)
+      } catch (error) {
+        console.error('Failed to load purchase options', error)
+      }
+    }
+
+    loadOptions()
+  }, [])
 
   useEffect(() => {
     reset({

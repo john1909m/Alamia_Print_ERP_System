@@ -2,7 +2,7 @@ package com.spring.boot.dto;
 
 import com.spring.boot.dto.MaterialDto;
 import com.spring.boot.dto.ProductionOrderDto;
-import java.util List;
+import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -20,7 +20,9 @@ import lombok.RequiredArgsConstructor;
 public class PaperDto {
     private Long id;
 
-    private MaterialDto material;
+    private Long material_id;
+
+    private String name;
 
     private List<ProductionOrderDto> orders;
 

@@ -58,7 +58,7 @@ public class ChemicalServiceImpl implements ChemicalService {
         log.info("Fetching chemical with id: {}", id);
         Chemical chemical = chemicalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Chemical not found with id: " + id));
-        log.info("Chemical found: {}", chemical.getName());
+        log.info("Chemical found: {}", chemical.getMaterial().getName());
         return chemicalMapper.toDto(chemical);
     }
 

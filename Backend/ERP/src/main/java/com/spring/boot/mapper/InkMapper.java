@@ -11,7 +11,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface InkMapper extends BaseMapper {
 
-    @Mapping(source = "material.id", target = "material.id") // This might need adjustment
+    @Mapping(source = "material.id", target = "material_id") // This might need adjustment
+    @Mapping(source = "material.name", target = "name") // This might need adjustment
     InkDto toDto(Ink entity);
 
     @Mapping(target = "material", ignore = true)

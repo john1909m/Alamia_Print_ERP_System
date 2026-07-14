@@ -27,7 +27,7 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
 
     @Override
     public ProductionOrderDto create(ProductionOrderDto productionOrderDto) {
-        log.info("Creating new production order with ID: {}", productionOrderDto.getId());
+        log.info("Creating new production order with description: {}", productionOrderDto.getDescription());
         ProductionOrder productionOrder = productionOrderMapper.toEntity(productionOrderDto);
         ProductionOrder savedProductionOrder = productionOrderRepository.save(productionOrder);
         log.info("Production order created successfully with id: {}", savedProductionOrder.getId());

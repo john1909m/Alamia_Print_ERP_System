@@ -23,9 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class ProductionOrderDto {
     private Long id;
 
-    @NotNull(message = "Order ID is required")
-    private UUID orderId;
-
     @NotNull(message = "Company is required")
     private CompanyDto company;
 
@@ -46,4 +43,7 @@ public class ProductionOrderDto {
 
     @NotNull(message = "Status is required")
     private ProductionStatus status;
+
+    private String description;
+
 }

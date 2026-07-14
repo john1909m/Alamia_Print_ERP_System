@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { PageHeader } from '@/components/ui/page-header'
@@ -17,12 +17,12 @@ import {
 } from '@/components/ui/select'
 import { useFetchData } from '@/hooks/useFetchData'
 import { purchaseService } from '@/features/purchases/services/purchaseService'
+import { supplierService } from '@/features/suppliers/services/supplierService'
 import { PurchaseForm } from '@/features/purchases/components/PurchaseForm'
 import { PurchaseStatusBadge } from '@/features/purchases/components/PurchaseStatusBadge'
 import { PurchaseInformationCard } from '@/features/purchases/components/PurchaseInformationCard'
 import { SupplierCard } from '@/features/purchases/components/SupplierCard'
 import { PurchaseSummary } from '@/features/purchases/components/PurchaseSummary'
-import { suppliersMockData } from '@/features/purchases/mock/purchasesData'
 import { ar } from '@/constants/ar'
 
 export default function PurchasesPage() {
@@ -36,8 +36,8 @@ export default function PurchasesPage() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [selectedPurchase, setSelectedPurchase] = useState(null)
   const [saving, setSaving] = useState(false)
-
-  const suppliers = suppliersMockData
+  const [suppliers, setSuppliers] = useState([])
+  const [suppliersLoading, setSuppliersLoading] = useState(true)
 
   const filteredData = useMemo(() => {
     return data.filter((purchase) => {
@@ -85,6 +85,23 @@ export default function PurchasesPage() {
     setDeleteOpen(false)
     setSelectedPurchase(null)
   }
+
+  // Load suppliers when component mounts
+  useEffect(() => {
+    const loadSuppliers = async () => {
+      try {
+        setSuppliersLoading(true)
+        const suppliersData = await supplierService.getAll()
+        setSuppliers(suppliersData)
+      } catch (error) {
+        console.error('Failed to load suppliers:', error)
+      } finally {
+        setSuppliersLoading(false)
+      }
+    }
+
+    loadSuppliers()
+  }, [])
 
   const columns = [
     { key: 'purchaseNumber', header: ar.purchases.orderNumber, sortable: true },
@@ -224,9 +241,10 @@ export default function PurchasesPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All suppliers</SelectItem>
-                {suppliers.map((supplier) => (
+                {!suppliersLoading && suppliers.map((supplier) => (
                   <SelectItem key={supplier.id} value={supplier.id.toString()}>{supplier.name}</SelectItem>
                 ))}
+                {suppliersLoading && <SelectItem value="loading" disabled>Loading...</SelectItem>}
               </SelectContent>
             </Select>
             <Input type="date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} className="w-full md:w-45" />

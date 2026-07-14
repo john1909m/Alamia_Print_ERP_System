@@ -1,33 +1,45 @@
-import { inventoryMockData } from '@/features/inventory/mock/inventoryData'
+import { apiClient, normalizePageResponse } from '@/services/api'
+import { API_ENDPOINTS } from '@/services/api'
 
-const delay = (ms = 300) => new Promise((resolve) => setTimeout(resolve, ms))
-
-let store = [...inventoryMockData]
+const buildInventoryTransactions = (materials = []) => {
+  return materials.flatMap((material) => [
+    {
+      id: `${material.id}-initial`,
+      materialId: material.id,
+      materialName: material.name,
+      transactionType: 'adjustment',
+      quantity: material.currentStock,
+      unit: material.unit,
+      reference: 'Backend material stock',
+      notes: material.description || '',
+      date: material.createdAt || new Date().toISOString().slice(0, 10),
+      currentStock: material.currentStock,
+      minStock: material.minStock,
+      materialType: material.type,
+    },
+  ])
+}
 
 export const inventoryService = {
   getAll: async () => {
-    await delay()
-    return Promise.resolve(store)
+    const response = await apiClient.get(API_ENDPOINTS.materials)
+    const materials = normalizePageResponse(response.data)
+    return buildInventoryTransactions(materials)
   },
   getById: async (id) => {
-    await delay()
-    const item = store.find((entry) => entry.id === Number(id))
-    return Promise.resolve(item || null)
+    const response = await apiClient.get(`${API_ENDPOINTS.inventory}/${id}`)
+    return response.data
   },
   create: async (data) => {
-    await delay()
-    const newItem = { id: Date.now(), date: new Date().toISOString().split('T')[0], ...data }
-    store = [newItem, ...store]
-    return Promise.resolve(newItem)
+    const response = await apiClient.post(API_ENDPOINTS.inventory, { date: new Date().toISOString().split('T')[0], ...data })
+    return response.data
   },
   update: async (id, data) => {
-    await delay()
-    store = store.map((item) => (item.id === Number(id) ? { ...item, ...data } : item))
-    return Promise.resolve(store.find((item) => item.id === Number(id)))
+    const response = await apiClient.put(`${API_ENDPOINTS.inventory}/${id}`, data)
+    return response.data
   },
   delete: async (id) => {
-    await delay()
-    store = store.filter((item) => item.id !== Number(id))
-    return Promise.resolve({ success: true, id: Number(id) })
+    await apiClient.delete(`${API_ENDPOINTS.inventory}/${id}`)
+    return { success: true, id: Number(id) }
   },
 }

@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: Alamia_Print
+  messages:
+    basename: i18n/messages
+  profiles:
+    active: dev
+  main:
+    allow-circular-references: true
+
+  server:
+    port: 8080
+    tls-protocols: TLSv1.2,TLSv1.3
+    ssl:
+      enabled-protocols: TLSv1.2,TLSv1.3
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+  jmx:
+    enabled: true
+
+https:
+  protocols: TLSv1.2,TLSv1.3
+

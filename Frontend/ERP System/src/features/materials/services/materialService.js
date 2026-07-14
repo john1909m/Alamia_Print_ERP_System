@@ -1,50 +1,65 @@
-import { materialsMockData } from '@/features/materials/mock/materialsData'
+import { apiClient, normalizePageResponse, normalizeEntityResponse } from '@/services/api'
+import { API_ENDPOINTS } from '@/services/api'
 import { withStockStatus } from '@/features/materials/utils/stockStatus'
 
-const delay = (ms = 300) => new Promise((resolve) => setTimeout(resolve, ms))
+const mapMaterial = (item = {}) => {
+  const currentStock = item.stock ?? item.currentStock ?? 0
+  const minStock = item.minStock ?? 0
 
-let store = materialsMockData.map((item) => withStockStatus({ ...item }))
-
-function enrich(item) {
-  return withStockStatus({ ...item })
+  return withStockStatus({
+    ...item,
+    id: item.id,
+    name: item.name || '-',
+    type: item.type || 'other',
+    unit: item.unit || '',
+    currentStock,
+    minStock,
+    description: item.description || item.notes || '',
+    createdAt: item.createdAt || item.created_at || '',
+  })
 }
 
 export const materialService = {
   getAll: async () => {
-    await delay()
-    return Promise.resolve(store.map(enrich))
+    const response = await apiClient.get(API_ENDPOINTS.materials)
+    return normalizePageResponse(response.data).map(mapMaterial)
   },
 
   getById: async (id) => {
-    await delay()
-    const material = store.find((m) => m.id === Number(id))
-    return Promise.resolve(material ? enrich(material) : null)
+    const response = await apiClient.get(`${API_ENDPOINTS.materials}/${id}`)
+    return mapMaterial(normalizeEntityResponse(response.data))
   },
 
   create: async (data) => {
-    await delay()
-    const newMaterial = enrich({
-      id: Date.now(),
-      currentStock: 0,
-      createdAt: new Date().toISOString().split('T')[0],
+    const payload = {
+      name: data.name,
+      type: data.type,
+      unit: data.unit,
+      stock: Number(data.stock ?? data.currentStock ?? 0),
+      minStock: Number(data.minStock ?? 0),
+      notes: data.description || data.notes || '',
       ...data,
-    })
-    store = [newMaterial, ...store]
-    return Promise.resolve({ ...newMaterial })
+    }
+    const response = await apiClient.post(API_ENDPOINTS.materials, payload)
+    return mapMaterial(normalizeEntityResponse(response.data))
   },
 
   update: async (id, data) => {
-    await delay()
-    store = store.map((item) =>
-      item.id === Number(id) ? enrich({ ...item, ...data, id: item.id }) : item,
-    )
-    const updated = store.find((m) => m.id === Number(id))
-    return Promise.resolve({ ...updated })
+    const payload = {
+      name: data.name,
+      type: data.type,
+      unit: data.unit,
+      stock: Number(data.stock ?? data.currentStock ?? 0),
+      minStock: Number(data.minStock ?? 0),
+      notes: data.description || data.notes || '',
+      ...data,
+    }
+    const response = await apiClient.put(`${API_ENDPOINTS.materials}/${id}`, payload)
+    return mapMaterial(normalizeEntityResponse(response.data))
   },
 
   delete: async (id) => {
-    await delay()
-    store = store.filter((item) => item.id !== Number(id))
-    return Promise.resolve({ success: true, id: Number(id) })
+    await apiClient.delete(`${API_ENDPOINTS.materials}/${id}`)
+    return { success: true, id: Number(id) }
   },
 }

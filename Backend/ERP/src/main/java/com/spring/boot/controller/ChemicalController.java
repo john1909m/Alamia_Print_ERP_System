@@ -1,14 +1,12 @@
 package com.spring.boot.controller;
 
-import com.spring.boot.common.ApiResponse;
 import com.spring.boot.dto.ChemicalDto;
 import com.spring.boot.service.interfaces.ChemicalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+//import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,12 +39,10 @@ public class ChemicalController {
                             schema = @Schema(implementation = ApiResponse.class)))
     })
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<ChemicalDto>>> getAllChemicals(
+    public ResponseEntity<Page<ChemicalDto>> getAllChemicals(
             @Parameter(description = "Pagination information", hidden = true) Pageable pageable) {
         Page<ChemicalDto> chemicals = chemicalService.findAll(pageable);
-        return ResponseEntity.ok(
-                ApiResponse.success("Chemicals retrieved successfully", chemicals)
-        );
+        return ResponseEntity.ok(chemicals);
     }
 
     @Operation(summary = "Get chemical by ID", description = "Retrieve a specific chemical by its ID")
@@ -59,11 +55,9 @@ public class ChemicalController {
                             schema = @Schema(implementation = ApiResponse.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ChemicalDto>> getChemicalById(@PathVariable Long id) {
+    public ResponseEntity<ChemicalDto> getChemicalById(@PathVariable Long id) {
         ChemicalDto chemical = chemicalService.findById(id);
-        return ResponseEntity.ok(
-                ApiResponse.success("Chemical retrieved successfully", chemical)
-        );
+        return ResponseEntity.ok(chemical);
     }
 
     @Operation(summary = "Create chemical", description = "Create a new chemical")
@@ -76,14 +70,14 @@ public class ChemicalController {
                             schema = @Schema(implementation = ApiResponse.class)))
     })
     @PostMapping
-    public ResponseEntity<ApiResponse<ChemicalDto>> createChemical(@Valid @RequestBody ChemicalDto chemicalDto) {
+    public ResponseEntity<ChemicalDto> createChemical(@Valid @RequestBody ChemicalDto chemicalDto) {
         ChemicalDto savedChemical = chemicalService.create(chemicalDto);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(savedChemical.getId())
                 .toUri();
         return ResponseEntity.created(location)
-                .body(ApiResponse.success("Chemical created successfully", savedChemical));
+                .body(savedChemical);
     }
 
     @Operation(summary = "Update chemical", description = "Update an existing chemical")
@@ -99,11 +93,9 @@ public class ChemicalController {
                             schema = @Schema(implementation = ApiResponse.class)))
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ChemicalDto>> updateChemical(@PathVariable Long id, @Valid @RequestBody ChemicalDto chemicalDto) {
+    public ResponseEntity<ChemicalDto> updateChemical(@PathVariable Long id, @Valid @RequestBody ChemicalDto chemicalDto) {
         ChemicalDto updatedChemical = chemicalService.update(id, chemicalDto);
-        return ResponseEntity.ok(
-                ApiResponse.success("Chemical updated successfully", updatedChemical)
-        );
+        return ResponseEntity.ok(updatedChemical);
     }
 
     @Operation(summary = "Delete chemical", description = "Delete a chemical by its ID")
@@ -114,7 +106,7 @@ public class ChemicalController {
                             schema = @Schema(implementation = ApiResponse.class)))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteChemical(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteChemical(@PathVariable Long id) {
         chemicalService.delete(id);
         return ResponseEntity.noContent().build();
     }

@@ -36,5 +36,5 @@ public class ProductDto {
     private List<ProductionOrderDto> orders;
 
     @NotNull(message = "Company is required")
-    private Long companyId;
+    private Long company_id;
 }

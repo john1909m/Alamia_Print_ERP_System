@@ -5,7 +5,6 @@ import com.spring.boot.mapper.MaterialMapper;
 import com.spring.boot.model.Material;
 import com.spring.boot.repo.MaterialRepository;
 import com.spring.boot.service.interfaces.MaterialService;
-import com.spring.boot.exception.ResourceNotFoundException;
 import com.spring.boot.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service implementation for Material entity.
@@ -40,7 +40,7 @@ public class MaterialServiceImpl implements MaterialService {
     public MaterialDto update(Long id, MaterialDto materialDto) {
         log.info("Updating material with id: {}", id);
         Material existing = materialRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Material not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Material not found with id: " + id));
         validateMaterialNameIsUnique(id, materialDto.getName());
         Material materialToUpdate = materialMapper.toEntity(materialDto);
         materialToUpdate.setId(existing.getId());
@@ -53,7 +53,7 @@ public class MaterialServiceImpl implements MaterialService {
     public void delete(Long id) {
         log.info("Deleting material with id: {}", id);
         Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Material not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Material not found with id: " + id));
         materialRepository.deleteById(id);
         log.info("Material deleted successfully with id: {}", id);
     }
@@ -62,17 +62,17 @@ public class MaterialServiceImpl implements MaterialService {
     public MaterialDto findById(Long id) {
         log.info("Fetching material with id: {}", id);
         Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Material not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Material not found with id: " + id));
         log.info("Material found: {}", material.getName());
         return materialMapper.toDto(material);
     }
 
     @Override
-    public java.util.List<MaterialDto> findAll() {
+    public List<MaterialDto> findAll() {
         log.info("Fetching all materials");
-        java.util.List<MaterialDto> materials = materialRepository.findAll().stream()
+        List<MaterialDto> materials = materialRepository.findAll().stream()
                 .map(materialMapper::toDto)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
         log.info("Found {} materials", materials.size());
         return materials;
     }
@@ -97,7 +97,7 @@ public class MaterialServiceImpl implements MaterialService {
      * @param materialName the material name to validate
      */
     private void validateMaterialNameIsUnique(Long id, String materialName) {
-        if (materialRepository.existsByNameAndIdNot(materialName, id)) {
+        if (materialRepository.existsByNameAndIdNot(materialName, id).isPresent()) {
             throw new BadRequestException("Material with name '" + materialName + "' already exists");
         }
     }

@@ -1,12 +1,9 @@
 package com.spring.boot.controller;
 
-import com.spring.boot.common.ApiResponse;
 import com.spring.boot.dto.SupplierDto;
 import com.spring.boot.service.interfaces.SupplierService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -38,72 +35,66 @@ public class SupplierController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Suppliers retrieved successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponse.class)))
+                            schema = @Schema(implementation = Page.class)))
     })
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<SupplierDto>>> getAllSuppliers(
+    public ResponseEntity<Page<SupplierDto>> getAllSuppliers(
             @Parameter(description = "Pagination information", hidden = true) Pageable pageable) {
         Page<SupplierDto> suppliers = supplierService.findAll(pageable);
-        return ResponseEntity.ok(
-                ApiResponse.success("Suppliers retrieved successfully", suppliers)
-        );
+        return ResponseEntity.ok(suppliers);
     }
 
     @Operation(summary = "Get supplier by ID", description = "Retrieve a specific supplier by its ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Supplier retrieved successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponse.class))),
+                            schema = @Schema(implementation = SupplierDto.class))),
             @ApiResponse(responseCode = "404", description = "Supplier not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponse.class)))
+                            schema = @Schema(implementation = SupplierDto.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<SupplierDto>> getSupplierById(@PathVariable Long id) {
+    public ResponseEntity<SupplierDto> getSupplierById(@PathVariable Long id) {
         SupplierDto supplier = supplierService.findById(id);
-        return ResponseEntity.ok(
-                ApiResponse.success("Supplier retrieved successfully", supplier)
-        );
+        return ResponseEntity.ok(supplier);
     }
 
     @Operation(summary = "Create supplier", description = "Create a new supplier")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Supplier created successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponse.class))),
+                            schema = @Schema(implementation = SupplierDto.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponse.class)))
+                            schema = @Schema(implementation = SupplierDto.class)))
     })
     @PostMapping
-    public ResponseEntity<ApiResponse<SupplierDto>> createSupplier(@Valid @RequestBody SupplierDto supplierDto) {
+    public ResponseEntity<SupplierDto> createSupplier(@Valid @RequestBody SupplierDto supplierDto) {
         SupplierDto savedSupplier = supplierService.create(supplierDto);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(savedSupplier.getId())
                 .toUri();
         return ResponseEntity.created(location)
-                .body(ApiResponse.success("Supplier created successfully", savedSupplier));
+                .body(savedSupplier);
     }
 
     @Operation(summary = "Update supplier", description = "Update an existing supplier")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Supplier updated successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponse.class))),
+                            schema = @Schema(implementation = SupplierDto.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponse.class))),
+                            schema = @Schema(implementation = SupplierDto.class))),
             @ApiResponse(responseCode = "404", description = "Supplier not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponse.class)))
+                            schema = @Schema(implementation = SupplierDto.class)))
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<SupplierDto>> updateSupplier(@PathVariable Long id, @Valid @RequestBody SupplierDto supplierDto) {
+    public ResponseEntity<SupplierDto> updateSupplier(@PathVariable Long id, @Valid @RequestBody SupplierDto supplierDto) {
         SupplierDto updatedSupplier = supplierService.update(id, supplierDto);
-        return ResponseEntity.ok(
-                ApiResponse.success("Supplier updated successfully", updatedSupplier)
-        );
+        return ResponseEntity.ok(updatedSupplier);
     }
 
     @Operation(summary = "Delete supplier", description = "Delete a supplier by its ID")
@@ -111,10 +102,10 @@ public class SupplierController {
             @ApiResponse(responseCode = "204", description = "Supplier deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Supplier not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponse.class)))
+                            schema = @Schema(implementation = SupplierDto.class)))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteSupplier(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSupplier(@PathVariable Long id) {
         supplierService.delete(id);
         return ResponseEntity.noContent().build();
     }

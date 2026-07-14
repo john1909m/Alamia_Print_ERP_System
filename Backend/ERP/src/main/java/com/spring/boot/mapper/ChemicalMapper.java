@@ -12,6 +12,7 @@ import org.mapstruct.Mapping;
 public interface ChemicalMapper extends BaseMapper {
 
     @Mapping(source = "material.id", target = "material_id")
+    @Mapping(source = "material.name", target = "name")
     ChemicalDto toDto(Chemical entity);
 
     @Mapping(target = "material", ignore = true)

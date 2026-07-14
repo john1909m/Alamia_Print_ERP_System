@@ -35,6 +35,10 @@ public class Product extends BaseEntity {
     )
     private List<ProductionOrder> orders;
 
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
+
 
 
 }

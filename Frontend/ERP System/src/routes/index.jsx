@@ -10,6 +10,9 @@ import {
   ProductsPage,
   PurchasesPage,
   ProductionOrdersPage,
+  CreateProductionOrderPage,
+  EditProductionOrderPage,
+  ProductionOrderDetailPage,
   ReportsPage,
   SettingsPage,
   NotFoundPage,
@@ -83,6 +86,32 @@ export const router = createBrowserRouter([
             <ProductionOrdersPage />
           </LazyPage>
         ),
+        children: [
+          {
+            path: 'create',
+            element: (
+              <LazyPage>
+                <CreateProductionOrderPage />
+              </LazyPage>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <LazyPage>
+                <ProductionOrderDetailPage />
+              </LazyPage>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <LazyPage>
+                <EditProductionOrderPage />
+              </LazyPage>
+            ),
+          },
+        ],
       },
       {
         path: 'reports',

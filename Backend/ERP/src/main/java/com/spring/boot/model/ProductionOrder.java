@@ -18,14 +18,12 @@ public class ProductionOrder extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID orderId;
 
     @ManyToOne
     @JoinColumn(name = "company_id")
-    Company company;
+    private Company company;
 
-    @ManyToMany(mappedBy = "production_order")
+    @ManyToMany(mappedBy = "orders")
     private List<Product> product;
 
     private Double quantity;
@@ -34,13 +32,14 @@ public class ProductionOrder extends BaseEntity{
     @JoinColumn(name = "paper_id")
     Paper paper;
 
-    @ManyToMany(mappedBy = "production_order")
+    @ManyToMany(mappedBy = "productionOrders")
     private List<Material> material;
 
     private Double requiredSheets;
 
     private ProductionStatus status;
 
+    private String description;
 
 
 

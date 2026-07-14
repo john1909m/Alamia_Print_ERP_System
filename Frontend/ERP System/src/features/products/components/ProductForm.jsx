@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ar } from '@/constants/ar'
-import { companiesMockData } from '@/features/companies/mock/companiesData'
+import { companyService } from '@/features/companies/services/companyService'
 import { createProductSchema, defaultProductValues } from '@/features/products/schemas/productSchema'
 
 const schema = createProductSchema({
@@ -25,6 +25,25 @@ export const ProductForm = forwardRef(function ProductForm(
   { defaultValues, onSubmit },
   ref,
 ) {
+  const [companyOptions, setCompanyOptions] = useState([])
+  const [loadingCompanies, setLoadingCompanies] = useState(true)
+
+  useEffect(() => {
+    const loadCompanies = async () => {
+      try {
+        setLoadingCompanies(true)
+        const companies = await companyService.getAll()
+        setCompanyOptions(companies)
+      } catch (error) {
+        console.error('Failed to load companies', error)
+      } finally {
+        setLoadingCompanies(false)
+      }
+    }
+
+    loadCompanies()
+  }, [])
+
   const {
     register,
     control,
@@ -70,7 +89,7 @@ export const ProductForm = forwardRef(function ProductForm(
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">{ar.products.selectCompany}</SelectItem>
-                {companiesMockData.map((company) => (
+                {companyOptions.map((company) => (
                   <SelectItem key={company.id} value={String(company.id)}>
                     {company.name}
                   </SelectItem>
