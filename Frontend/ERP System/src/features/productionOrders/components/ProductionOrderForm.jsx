@@ -176,7 +176,7 @@ export default function ProductionOrderForm({
           <Controller
             control={control}
             name="paperId"
-            render({ ({ field }) => (
+            render(({ field }) => (
               <Select
                 id="paperId"
                 value={field.value ? String(field.value) : ''}
