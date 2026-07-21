@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { productionOrderService } from '@/features/productionOrders/services/productionOrderService';
 import { companyService } from '@/features/companies/services/companyService';
 import { productService } from '@/features/products/services/productService';
+import { paperService } from '@/features/papers/services/paperService';
+import { materialService } from '@/features/materials/services/materialService';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -16,7 +18,9 @@ export default function ProductionOrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState(null);
   const [company, setCompany] = useState(null);
-  const [product, setProduct] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [paper, setPaper] = useState(null);
+  const [materials, setMaterials] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,12 +29,31 @@ export default function ProductionOrderDetailPage() {
         const orderData = await productionOrderService.getById(id);
         if (orderData) {
           setOrder(orderData);
-          const [companyData, productData] = await Promise.all([
+          // Fetch related data in parallel
+          const [
+            companyData,
+            allProducts,
+            paperData,
+            allMaterials
+          ] = await Promise.all([
             orderData.companyId ? companyService.getById(orderData.companyId) : Promise.resolve(null),
-            orderData.productId ? productService.getById(orderData.productId) : Promise.resolve(null),
+            orderData.productIds && orderData.productIds.length > 0 ? productService.getAll() : Promise.resolve([]),
+            orderData.paperId ? paperService.getById(orderData.paperId) : Promise.resolve(null),
+            orderData.materialIds && orderData.materialIds.length > 0 ? materialService.getAll() : Promise.resolve([]),
           ]);
+
+          // Filter products and materials by IDs
+          const filteredProducts = orderData.productIds?.length
+            ? allProducts.filter(p => orderData.productIds.includes(p.id))
+            : [];
+          const filteredMaterials = orderData.materialIds?.length
+            ? allMaterials.filter(m => orderData.materialIds.includes(m.id))
+            : [];
+
           setCompany(companyData);
-          setProduct(productData);
+          setProducts(filteredProducts);
+          setPaper(paperData);
+          setMaterials(filteredMaterials);
         } else {
           alert(ar.common.notFound);
           navigate('/production-orders');
@@ -115,7 +138,7 @@ export default function ProductionOrderDetailPage() {
           {(!isCompleted && !isCancelled) && (
             <Button
               onClick={() => {
-                if (window.confirm(`${ar.productionOrders.confirmCancel}`)) {
+                if (window.confirm(`${ar.productionOrders.confirmCancel}`))) {
                   // TODO: Implement cancel
                   alert('Cancel functionality not implemented yet');
                 }
@@ -155,6 +178,18 @@ export default function ProductionOrderDetailPage() {
                   <span>{order.quantity.toLocaleString()}</span>
                 </div>
                 <div>
+                  <span className="font-medium">{ar.common.paper}:</span>
+                  <span>{paper?.name || '-'}</span>
+                </div>
+                <div>
+                  <span className="font-medium">{ar.common.material}:</span>
+                  <span>
+                    {materials.length > 0
+                      ? materials.map(m => m.name).join(', ')
+                      : '-'}
+                  </span>
+                </div>
+                <div>
                   <span className="font-medium">{ar.common.notes}:</span>
                   <span>{order.notes || '-'}</span>
                 </div>
@@ -192,7 +227,7 @@ export default function ProductionOrderDetailPage() {
           )}
 
           {/* Product Information */}
-          {product && (
+          {products.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>{ar.common.product}</CardTitle>
@@ -201,20 +236,24 @@ export default function ProductionOrderDetailPage() {
                 <div className="space-y-2">
                   <div>
                     <span className="font-medium">{ar.common.name}:</span>
-                    <span>{product.name}</span>
+                    <span>{products.map(p => p.name).join(', ')}</span>
                   </div>
-                  <div>
-                    <span className="font-medium">{ar.common.sku}:</span>
-                    <span>{product.sku}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium">{ar.common.category}:</span>
-                    <span>{product.category}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium">{ar.common.status}:</span>
-                    <span>{product.status}</span>
-                  </div>
+                  {products.length > 0 && (
+                    <>
+                      <div>
+                        <span className="font-medium">{ar.common.sku}:</span>
+                        <span>{products.map(p => p.sku).join(', ')}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium">{ar.common.category}:</span>
+                        <span>{products.map(p => p.category).join(', ')}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium">{ar.common.status}:</span>
+                        <span>{products.map(p => p.status).join(', ')}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -232,11 +271,11 @@ export default function ProductionOrderDetailPage() {
               {workflowStages.map((stage) => (
                 <div key={stage.id} className="flex items-start space-x-3">
                   <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full">
-                    {status === stage.value ? (
+                    {order.status === stage.value ? (
                       <div className="w-4 h-4 bg-primary-600 rounded-full" />
                     ) : (
                       <>
-                        {status === 'delivered' && stage.value === 'delivered' ? (
+                        {order.status === 'delivered' && stage.value === 'delivered' ? (
                           <Check className="w-4 h-4 text-white" />
                         ) : (
                           <div className="w-4 h-4 border-2 border-dashed border-gray-300 rounded-full" />
@@ -247,9 +286,9 @@ export default function ProductionOrderDetailPage() {
                   <div>
                     <p className="font-medium">{stage.label}</p>
                     <p className="text-sm text-muted-foreground">
-                      {status === stage.value
+                      {order.status === stage.value
                         ? 'Current stage'
-                        : compareStatusOrder(status, stage.value) < 0
+                        : compareStatusOrder(order.status, stage.value) < 0
                         ? 'Completed'
                         : 'Upcoming'}
                     </p>
@@ -303,7 +342,11 @@ export default function ProductionOrderDetailPage() {
                     </div>
                     <div>
                       <span className="font-medium">{ar.common.product}:</span>
-                      <span>{product?.name || '-'}</span>
+                      <span>
+                        {products.length > 0
+                          ? products.map(p => p.name).join(', ')
+                          : '-'}
+                      </span>
                     </div>
                     <div>
                       <span className="font-medium">{ar.productionOrders.quantity}:</span>

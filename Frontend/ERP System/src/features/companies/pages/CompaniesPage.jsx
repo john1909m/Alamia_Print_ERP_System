@@ -6,16 +6,9 @@ import { ar } from '@/constants/ar'
 
 const columns = [
   { key: 'name', header: ar.companies.name, sortable: true },
-  { key: 'phone', header: ar.common.phone, sortable: true },
   { key: 'email', header: ar.common.email, sortable: true },
   { key: 'address', header: ar.common.address },
-  {
-    key: 'productsCount',
-    header: ar.companies.productsCount,
-    sortable: true,
-    render: (row) => row.productsCount?.toLocaleString('ar-SA'),
-  },
-  { key: 'createdAt', header: ar.common.created, sortable: true },
+  { key: 'managerName', header: ar.shared.managerName, sortable: true },
 ]
 
 export default function CompaniesPage() {
@@ -35,14 +28,19 @@ export default function CompaniesPage() {
       viewTitle={ar.companies.viewTitle}
       viewLabels={{
         name: ar.companies.name,
-        count: ar.companies.productsCount,
-        countKey: 'productsCount',
+        email: ar.common.email,
+        address: ar.common.address,
+        managerName: ar.shared.managerName,
+        phone: ar.common.phone,
+        notes: ar.common.notes,
+        productsCount: ar.companies.productsCount,
+        createdAt: ar.common.created,
       }}
       columns={columns}
       data={data}
       loading={loading}
       searchPlaceholder={ar.companies.search}
-      searchKeys={['name', 'phone', 'email', 'address']}
+      searchKeys={['name', 'email', 'address', 'managerName', 'phone']}
       FormComponent={CompanyForm}
       onCreate={create}
       onUpdate={update}

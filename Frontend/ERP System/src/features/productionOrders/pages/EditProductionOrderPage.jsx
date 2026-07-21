@@ -18,13 +18,8 @@ export default function EditProductionOrderPage() {
       try {
         const order = await productionOrderService.getById(id);
         if (order) {
-          // Convert dates to YYYY-MM-DD format for the input type="date"
-          const formattedOrder = {
-            ...order,
-            orderDate: order.orderDate.split('T')[0],
-            expectedDeliveryDate: order.expectedDeliveryDate.split('T')[0],
-          };
-          setInitialData(formattedOrder);
+          // No need to format dates as the form doesn't have date fields anymore
+          setInitialData(order);
         } else {
           alert(ar.common.notFound);
           navigate('/production-orders');

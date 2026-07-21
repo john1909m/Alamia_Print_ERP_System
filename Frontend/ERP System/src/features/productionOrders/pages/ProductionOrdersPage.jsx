@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productionOrderService } from '@/features/productionOrders/services/productionOrderService';
+import { companyService } from '@/features/companies/services/companyService';
+import { productService } from '@/features/products/services/productService';
 import { SearchBar } from '@/features/shared/components/SearchBar';
 import { DataTable } from '@/features/shared/components/DataTable';
 import { Button } from '@/components/ui/button';
@@ -32,7 +34,9 @@ const statusOptions = [
 
 export default function ProductionOrdersPage() {
   const navigate = useNavigate();
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([]); // This will be the mapped data with names
+  const [companies, setCompanies] = useState([]); // For the company filter select
+  const [products, setProducts] = useState([]); // For mapping product IDs to names
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
@@ -49,8 +53,31 @@ export default function ProductionOrdersPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const result = await productionOrderService.getAll();
-      setData(result);
+      // Fetch reference data and orders in parallel
+      const [companiesRes, productsRes, ordersRes] = await Promise.all([
+        companyService.getAll(),
+        productService.getAll(),
+        productionOrderService.getAll()
+      ]);
+
+      setCompanies(companiesRes);
+      setProducts(productsRes);
+
+      // Map orders to include companyName and productName for display
+      const mappedOrders = ordersRes.map(order => ({
+        ...order,
+        companyName: order.companyId
+          ? companiesRes.find(c => c.id === order.companyId)?.name || ''
+          : '',
+        productName: order.productIds
+          ? order.productIds
+              .map(id => productsRes.find(p => p.id === id)?.name || '')
+              .filter(Boolean)
+              .join(', ')
+          : ''
+      }));
+
+      setData(mappedOrders);
     } catch (error) {
       console.error('Error fetching production orders:', error);
     } finally {
@@ -115,7 +142,7 @@ export default function ProductionOrdersPage() {
       </button>
       <button
         onClick={() => {
-          if (window.confirm(`هل أنت متأكد من حذف أمر الإنتاج ${order.orderNumber}؟`)) {
+          if (window.confirm(`هل أنت متأكد من حذف أمر الإنتاج ${order.orderNumber}？`)) {
             productionOrderService.delete(order.id).then(() => {
               alert(ar.common.deletedSuccessfully);
               loadData();
@@ -170,8 +197,11 @@ export default function ProductionOrdersPage() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{ar.common.all}</option>
-            {/* We would need to fetch companies here, but for now we'll leave it empty or hardcode a few */}
-            {/* In a real app, we would load companies from companyService */}
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
           </select>
         </div>
         <div>

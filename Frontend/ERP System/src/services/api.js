@@ -65,6 +65,7 @@ export const API_ENDPOINTS = {
   purchases: '/purchases',
   productionOrders: '/production-orders',
   reports: '/reports',
+  papers: '/papers',
   dashboard: '/dashboard',
   settings: '/settings',
 }

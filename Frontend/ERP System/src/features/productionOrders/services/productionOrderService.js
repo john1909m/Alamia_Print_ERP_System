@@ -2,24 +2,26 @@ import { apiClient, normalizePageResponse, normalizeEntityResponse } from '@/ser
 import { API_ENDPOINTS } from '@/services/api'
 
 const mapProductionOrder = (item = {}) => {
-  const company = item.company || item.companyName || ''
-  const product = item.product || item.productName || ''
+  // Extract IDs from the response (these come directly from the DTO)
+  const companyId = item.company_id ?? null
+  const productIds = item.product_ids ?? []
+  const paperId = item.paper_id ?? null
+  const materialIds = item.material_ids ?? []
 
   return {
     ...item,
     id: item.id,
-    orderNumber: item.orderNumber || item.order_number || `PO-${item.id || 'new'}`,
-    companyId: item.companyId || item.company_id || item.company?.id || null,
-    companyName: item.companyName || item.company?.name || company,
-    productId: item.productId || item.product_id || item.product?.id || null,
-    productName: item.productName || item.product?.name || product,
-    quantity: item.quantity || item.requiredSheets || 0,
-    orderDate: item.orderDate || item.createdAt || '',
-    expectedDeliveryDate: item.expectedDeliveryDate || item.dueDate || '',
+    // For form submission, we'll use the ID fields directly
+    companyId: companyId,
+    productIds: productIds,
+    paperId: paperId,
+    materialIds: materialIds,
+    quantity: item.quantity,
+    requiredSheets: item.requiredSheets,
     status: item.status || 'pending',
-    notes: item.notes || item.description || '',
+    description: item.description || '',
     createdAt: item.createdAt || item.created_at || '',
-    updatedAt: item.updatedAt || item.updated_at || '',
+    updatedAt: item.updatedAt || item.updated_at || ''
   }
 }
 
@@ -35,45 +37,49 @@ export const productionOrderService = {
   },
 
   create: async (data) => {
+    // Map form field names to DTO field names
     const payload = {
-      orderNumber: data.orderNumber,
-      companyId: data.companyId,
-      company: data.companyName || data.company,
-      productId: data.productId,
-      product: data.productName || data.product,
-      quantity: Number(data.quantity || 0),
-      orderDate: data.orderDate,
-      expectedDeliveryDate: data.expectedDeliveryDate,
+      company_id: data.companyId,
+      product_ids: data.productIds || [],
+      quantity: data.quantity,
+      paper_id: data.paperId,
+      material_ids: data.materialIds || [],
+      requiredSheets: data.requiredSheets ?? data.quantity, // Default to quantity if not provided
       status: data.status || 'pending',
-      notes: data.notes || data.description || '',
-      description: data.notes || data.description || '',
-      requiredSheets: Number(data.quantity || 0),
-      paper: data.paper || null,
-      material: data.material || null,
-      ...data,
+      description: data.description || data.notes || '' // Map notes to description for backward compatibility
     }
+
+    // Remove undefined/null values
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === undefined || payload[key] === null) {
+        delete payload[key]
+      }
+    })
+
     const response = await apiClient.post(API_ENDPOINTS.productionOrders, payload)
     return mapProductionOrder(normalizeEntityResponse(response.data))
   },
 
   update: async (id, data) => {
+    // Map form field names to DTO field names (same as create)
     const payload = {
-      orderNumber: data.orderNumber,
-      companyId: data.companyId,
-      company: data.companyName || data.company,
-      productId: data.productId,
-      product: data.productName || data.product,
-      quantity: Number(data.quantity || 0),
-      orderDate: data.orderDate,
-      expectedDeliveryDate: data.expectedDeliveryDate,
+      company_id: data.companyId,
+      product_ids: data.productIds || [],
+      quantity: data.quantity,
+      paper_id: data.paperId,
+      material_ids: data.materialIds || [],
+      requiredSheets: data.requiredSheets ?? data.quantity, // Default to quantity if not provided
       status: data.status || 'pending',
-      notes: data.notes || data.description || '',
-      description: data.notes || data.description || '',
-      requiredSheets: Number(data.quantity || 0),
-      paper: data.paper || null,
-      material: data.material || null,
-      ...data,
+      description: data.description || data.notes || ''
     }
+
+    // Remove undefined/null values
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === undefined || payload[key] === null) {
+        delete payload[key]
+      }
+    })
+
     const response = await apiClient.put(`${API_ENDPOINTS.productionOrders}/${id}`, payload)
     return mapProductionOrder(normalizeEntityResponse(response.data))
   },
@@ -86,5 +92,5 @@ export const productionOrderService = {
   updateStatus: async (id, status) => {
     const response = await apiClient.put(`${API_ENDPOINTS.productionOrders}/${id}`, { status })
     return mapProductionOrder(normalizeEntityResponse(response.data))
-  },
+  }
 }

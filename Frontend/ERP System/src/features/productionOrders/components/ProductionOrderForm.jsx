@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { companyService } from '@/features/companies/services/companyService';
 import { productService } from '@/features/products/services/productService';
+import { paperService } from '@/features/papers/services/paperService';
+import { materialService } from '@/features/materials/services/materialService';
 import { ar } from '@/constants/ar';
 
 const statusOptions = [
@@ -24,16 +32,14 @@ const statusOptions = [
 ];
 
 const formSchema = z.object({
-  orderNumber: z.string().min(1, { message: ar.common.orderNumberRequired }),
   companyId: z.number().int().positive({ message: ar.common.companyRequired }),
-  productId: z.number().int().positive({ message: ar.common.productRequired }),
-  quantity: z.number().int().positive({ message: ar.common.quantityRequired }),
-  orderDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: ar.common.orderDateInvalid,
-  }),
-  expectedDeliveryDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: ar.common.expectedDeliveryDateInvalid,
-  }),
+  productIds: z.array(z.number().int().positive()).min(1, { message: ar.common.productRequired }),
+  paperId: z.number().int().positive({ message: 'يرجى اختيار ورق' }), // Custom message since no key in ar.js
+  quantity: z.number().positive({ message: ar.common.quantityRequired }), // Allow decimals
+  requiredSheets: z.preprocess(
+    (val) => (val === '' ? undefined : Number(val)),
+    z.number().positive().optional()
+  ),
   status: z.enum([
     'pending',
     'approved',
@@ -45,7 +51,7 @@ const formSchema = z.object({
     'delivered',
     'cancelled',
   ]),
-  notes: z.string().optional(),
+  description: z.string().optional(),
 });
 
 export default function ProductionOrderForm({
@@ -57,23 +63,25 @@ export default function ProductionOrderForm({
     handleSubmit,
     formState: { errors },
     reset,
+    control,
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      orderNumber: '',
       companyId: '',
-      productId: '',
+      productIds: [],
+      paperId: '',
       quantity: '',
-      orderDate: '',
-      expectedDeliveryDate: '',
+      requiredSheets: '',
       status: 'pending',
-      notes: '',
+      description: '',
       ...defaultValues,
     },
   });
 
   const [companies, setCompanies] = useState([]);
   const [products, setProducts] = useState([]);
+  const [papers, setPapers] = useState([]);
+  const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleFormSubmit = (data) => {
@@ -91,6 +99,14 @@ export default function ProductionOrderForm({
         // Fetch products
         const productsResponse = await productService.getAll();
         setProducts(productsResponse);
+
+        // Fetch papers
+        const papersResponse = await paperService.getAll();
+        setPapers(papersResponse);
+
+        // Fetch materials
+        const materialsResponse = await materialService.getAll();
+        setMaterials(materialsResponse);
       } catch (error) {
         console.error('Failed to load reference data:', error);
       } finally {
@@ -101,7 +117,7 @@ export default function ProductionOrderForm({
     loadReferenceData();
   }, []);
 
-  // Prepare options for company and product selects
+  // Prepare options for selects
   const companyOptions = companies.map((company) => ({
     value: company.id,
     label: company.name,
@@ -112,63 +128,142 @@ export default function ProductionOrderForm({
     label: product.name,
   }));
 
+  const paperOptions = papers.map((paper) => ({
+    value: paper.id,
+    label: paper.name,
+  }));
+
+  const materialOptions = materials.map((material) => ({
+    value: material.id,
+    label: material.name,
+  }));
+
   if (loading) {
     // Return a simplified form or show loading state
     // For now, we'll return the form with empty options
-    // In a real app, you might want to show a skeleton loader
   }
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <Label htmlFor="orderNumber">{ar.productionOrders.orderNumber}</Label>
-          <Input
-            id="orderNumber"
-            placeholder="أدخل رقم الطلب"
-            {...register('orderNumber')}
+          <Label htmlFor="companyId">{ar.common.company}</Label>
+          <Controller
+            control={control}
+            name="companyId"
+            render={({ field }) => (
+              <Select
+                id="companyId"
+                value={field.value ? String(field.value) : ''}
+                onValueChange={(value) => field.onChange(value ? Number(value) : 0)}
+                placeholder={ar.common.selectCompany}
+              >
+                <option value="">{`--- ${ar.common.selectCompany} ---`}</option>
+                {companyOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            )}
           />
-          {errors.orderNumber && (
-            <span className="text-sm text-red-600">{errors.orderNumber.message}</span>
+          {errors.companyId && (
+            <span className="text-sm text-red-600">{errors.companyId.message}</span>
           )}
         </div>
         <div>
-          <Label htmlFor="companyId">{ar.common.company}</Label>
-          <Select
-            id="companyId"
-            placeholder="اختر الشركة"
-            {...register('companyId')}
-          >
-            <option value="">{`--- ${ar.common.selectCompany} ---`}</option>
-            {companyOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              }
+          <Label htmlFor="paperId">{ar.common.paper}</Label>
+          <Controller
+            control={control}
+            name="paperId"
+            render({ ({ field }) => (
+              <Select
+                id="paperId"
+                value={field.value ? String(field.value) : ''}
+                onValueChange={(value) => field.onChange(value ? Number(value) : 0)}
+                placeholder={ar.common.selectPaper}
+              >
+                <option value="">{`--- ${ar.common.selectPaper} ---`}</option>
+                {paperOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
             ))}
-          </Select>
-          {errors.companyId && (
-            <span className="text-sm text-red-600">{errors.companyId.message}</span>
+          />
+          {errors.paperId && (
+            <span className="text-sm text-red-600">{errors.paperId.message}</span>
           )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <Label htmlFor="productId">{ar.common.product}</Label>
-          <Select
-            id="productId"
-            placeholder="اختر المنتج"
-            {...register('productId')}
-          >
-            <option value="">{`--- ${ar.common.selectProduct} ---`}</option>
-            {productOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              }
+          <Label htmlFor="productIds">{ar.common.product}</Label>
+          <Controller
+            control={control}
+            name="productIds"
+            render({ ({ field }) => (
+              <Select
+                id="productIds"
+                multiple
+                value={Array.isArray(field.value) ? field.value.map(String) : []}
+                onValueChange={(values) => field.onChange(values.map(Number))}
+                placeholder={ar.common.selectProduct}
+              >
+                <option value="">{`--- ${ar.common.selectProduct} ---`}</option>
+                {productOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
             ))}
-          </Select>
-          {errors.productId && (
-            <span className="text-sm text-red-600">{errors.productId.message}</span>
+          />
+          {errors.productIds && (
+            <span className="text-sm text-red-600">{errors.productIds.message}</span>
+          )}
+        </div>
+        <div>
+          <Label htmlFor="materialIds">{ar.common.material}</Label>
+          <Controller
+            control={control}
+            name="materialIds"
+            render({ ({ field }) => (
+              <Select
+                id="materialIds"
+                multiple
+                value={Array.isArray(field.value) ? field.value.map(String) : []}
+                onValueChange={(values) => field.onChange(values.map(Number))}
+                placeholder={ar.common.selectMaterial}
+              >
+                <option value="">{`--- ${ar.common.selectMaterial} ---`}</option>
+                {materialOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            ))}
+          />
+          {errors.materialIds && (
+            <span className="text-sm text-red-600">{errors.materialIds.message}</span>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <Label htmlFor="requiredSheets">الأوراق المطلوبة</Label>
+          <Input
+            id="requiredSheets"
+            type="number"
+            placeholder="أدخل عدد الأوراق المطلوبة (اختياري)"
+            {...register('requiredSheets')}
+          />
+          {errors.requiredSheets && (
+            <span className="text-sm text-red-600">{errors.requiredSheets.message}</span>
           )}
         </div>
         <div>
@@ -176,7 +271,6 @@ export default function ProductionOrderForm({
           <Input
             id="quantity"
             type="number"
-            min="1"
             placeholder="أدخل الكمية"
             {...register('quantity')}
           />
@@ -188,56 +282,37 @@ export default function ProductionOrderForm({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <Label htmlFor="orderDate">{ar.productionOrders.orderDate}</Label>
-          <input
-            id="orderDate"
-            type="date"
-            className="border rounded px-3 py-2 w-full"
-            {...register('orderDate')}
-          />
-          {errors.orderDate && (
-            <span className="text-sm text-red-600">{errors.orderDate.message}</span>
-          )}
-        </div>
-        <div>
-          <Label htmlFor="expectedDeliveryDate">{ar.productionOrders.dueDate}</Label>
-          <input
-            id="expectedDeliveryDate"
-            type="date"
-            className="border rounded px-3 py-2 w-full"
-            {...register('expectedDeliveryDate')}
-          />
-          {errors.expectedDeliveryDate && (
-            <span className="text-sm text-red-600">{errors.expectedDeliveryDate.message}</span>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-col-2">
-        <div>
           <Label htmlFor="status">{ar.common.status}</Label>
-          <Select
-            id="status"
-            {...register('status')}
-          >
-            <option value="">{`--- ${ar.common.selectStatus} ---`}</option>
-            {statusOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              }
-            ))}
-          </Select>
+          <Controller
+            control={control}
+            name="status"
+            render({ ({ field }) => (
+              <Select
+                id="status"
+                value={field.value}
+                onValueChange={field.onChange}
+                placeholder={ar.common.selectStatus}
+              >
+                <option value="">{`--- ${ar.common.selectStatus} ---`}</option>
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            )}
+          )}
           {errors.status && (
             <span className="text-sm text-red-600">{errors.status.message}</span>
           )}
         </div>
         <div>
-          <Label htmlFor="notes">{ar.common.notes}</Label>
+          <Label htmlFor="description">{ar.common.notes}</Label>
           <Textarea
-            id="notes"
+            id="description"
             rows={4}
             placeholder="أدخل الملاحظات (اختياري)"
-            {...register('notes')}
+            {...register('description')}
           />
         </div>
       </div>

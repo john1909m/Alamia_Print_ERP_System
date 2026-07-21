@@ -97,6 +97,8 @@ export const ar = {
   shared: {
     addressPlaceholder: 'أدخل العنوان',
     notesPlaceholder: 'ملاحظات إضافية (اختياري)',
+    managerName: 'اسم المدير',
+    managerNamePlaceholder: 'أدخل اسم المدير',
     validation: {
       nameMin: 'الاسم مطلوب (حرفين على الأقل)',
       emailInvalid: 'البريد الإلكتروني غير صالح',
@@ -104,6 +106,8 @@ export const ar = {
       typeRequired: 'نوع المادة مطلوب',
       unitRequired: 'الوحدة مطلوبة',
       minStockMin: 'الحد الأدنى يجب أن يكون 0 أو أكثر',
+      managerNameMin: 'اسم المدير مطلوب (حرفين على الأقل)',
+      managerNameMax: 'اسم المدير يجب ألا يتجاوز 100 حرف',
     },
   },
   nav: {

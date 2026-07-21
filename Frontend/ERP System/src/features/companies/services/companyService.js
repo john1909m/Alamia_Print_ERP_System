@@ -9,6 +9,7 @@ const mapCompany = (item = {}) => ({
   email: item.email || '',
   address: item.address || item.location || '',
   notes: item.notes || '',
+  managerName: item.managerName || '',
   productsCount: item.products?.length || item.productsCount || 0,
   createdAt: item.createdAt || item.created_at || '',
 })
@@ -26,28 +27,18 @@ export const companyService = {
 
   create: async (data) => {
     const payload = {
-      name: data.name,
-      email: data.email,
-      address: data.address,
-      phone: data.phone,
-      notes: data.notes,
-      managerName: data.managerName || '',
       ...data,
-    }
+      managerName: data.managerName || '',
+    };
     const response = await apiClient.post(API_ENDPOINTS.companies, payload)
     return mapCompany(normalizeEntityResponse(response.data))
   },
 
   update: async (id, data) => {
     const payload = {
-      name: data.name,
-      email: data.email,
-      address: data.address,
-      phone: data.phone,
-      notes: data.notes,
-      managerName: data.managerName || '',
       ...data,
-    }
+      managerName: data.managerName || '',
+    };
     const response = await apiClient.put(`${API_ENDPOINTS.companies}/${id}`, payload)
     return mapCompany(normalizeEntityResponse(response.data))
   },
