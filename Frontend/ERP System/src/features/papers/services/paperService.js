@@ -5,9 +5,12 @@ const mapPaper = (item = {}) => {
   return {
     ...item,
     id: item.id,
+    material_id: item.material_id,
     name: item.name || '-',
     type: item.type || '',
-    // Add any other fields needed for display
+    weight: item.weight,
+    brightness: item.brightness,
+    color: item.color,
   }
 }
 
@@ -22,7 +25,6 @@ export const paperService = {
     return mapPaper(normalizeEntityResponse(response.data))
   },
 
-  // Add create, update, delete if needed for completeness
   create: async (data) => {
     const response = await apiClient.post(API_ENDPOINTS.papers, data)
     return mapPaper(normalizeEntityResponse(response.data))
@@ -36,5 +38,5 @@ export const paperService = {
   delete: async (id) => {
     await apiClient.delete(`${API_ENDPOINTS.papers}/${id}`)
     return { success: true, id: Number(id) }
-  }
+  },
 }

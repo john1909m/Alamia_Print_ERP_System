@@ -6,9 +6,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ar, MATERIAL_TYPE_LABELS, STATUS_LABELS } from '@/constants/ar'
+import { ar } from '@/constants/ar'
+import { MATERIAL_TYPES } from '@/features/materials/utils/constants'
 
-export function MaterialFilters({ typeFilter, statusFilter, onTypeChange, onStatusChange }) {
+export function MaterialFilters({
+  typeFilter,
+  onTypeChange,
+  filterTypes, // prop passed from parent
+}) {
+  // Default filterTypes if not provided (for safety)
+  const defaultFilterTypes = [
+    { value: 'all', label: ar.materials.allTypes },
+    ...MATERIAL_TYPES.map((t) => ({
+      value: t.value.toLowerCase(),
+      label: t.label,
+    })),
+  ]
+  const types = filterTypes || defaultFilterTypes
+
   return (
     <FilterBar>
       <Select value={typeFilter} onValueChange={onTypeChange}>
@@ -16,23 +31,11 @@ export function MaterialFilters({ typeFilter, statusFilter, onTypeChange, onStat
           <SelectValue placeholder={ar.materials.filterType} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">{ar.materials.allTypes}</SelectItem>
-          {Object.entries(MATERIAL_TYPE_LABELS).map(([value, label]) => (
-            <SelectItem key={value} value={value}>
-              {label}
+          {types.map((t) => (
+            <SelectItem key={t.value} value={t.value}>
+              {t.label}
             </SelectItem>
           ))}
-        </SelectContent>
-      </Select>
-      <Select value={statusFilter} onValueChange={onStatusChange}>
-        <SelectTrigger className="w-45">
-          <SelectValue placeholder={ar.materials.filterStatus} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">{ar.materials.allStatuses}</SelectItem>
-          <SelectItem value="in-stock">{STATUS_LABELS['in-stock']}</SelectItem>
-          <SelectItem value="low-stock">{STATUS_LABELS['low-stock']}</SelectItem>
-          <SelectItem value="out-of-stock">{STATUS_LABELS['out-of-stock']}</SelectItem>
         </SelectContent>
       </Select>
     </FilterBar>
