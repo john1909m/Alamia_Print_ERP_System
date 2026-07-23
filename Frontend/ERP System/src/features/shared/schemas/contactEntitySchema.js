@@ -1,24 +1,34 @@
 import { z } from 'zod'
 
-const phoneRegex = /^(\+20|0)?1[0125]\d{8}$/
-
 export function createContactEntitySchema(messages) {
   return z.object({
-    name: z.string().min(2, messages.nameMin),
-    phone: z
+    name: z
       .string()
-      .optional()
-      .refine((val) => !val || phoneRegex.test(val.replace(/[\s-]/g, '')), {
-        message: messages.phoneInvalid,
-      }),
+      .trim()
+      .min(1, 'الاسم مطلوب')
+      .max(100, 'الاسم يجب ألا يتجاوز 100 أحرف'),
     email: z
       .string()
-      .optional()
-      .refine((val) => !val || z.string().email().safeParse(val).success, {
-        message: messages.emailInvalid,
-      }),
-    address: z.string().optional(),
-    notes: z.string().optional(),
+      .trim()
+      .min(1, 'البريد الإلكتروني مطلوب')
+      .email(messages.emailInvalid)
+      .max(100, 'البريد الإلكتروني يجب ألا يتجاوز 100 أحرف'),
+    phone: z
+      .string()
+      .trim()
+      .max(20, 'رقم الهاتف يجب ألا يتجاوز 20 أحرف')
+      .optional(),
+    address: z
+      .string()
+      .trim()
+      .min(1, 'العنوان مطلوب')
+      .max(200, 'العنوان يجب ألا يتجاوز 200 أحرف'),
+    notes: z
+      .string()
+      .trim()
+      .max(500, 'الملاحظات يجب ألا يتجاوز 500 أحرف')
+      .optional(),
+    type: z.enum(['PAPER', 'INK', 'CHEMICAL', 'ZINC']).optional(),
   })
 }
 
@@ -28,4 +38,5 @@ export const defaultContactValues = {
   email: '',
   address: '',
   notes: '',
+  type: undefined,
 }

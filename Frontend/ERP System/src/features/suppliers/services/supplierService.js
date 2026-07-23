@@ -11,6 +11,7 @@ const mapSupplier = (item = {}) => ({
   notes: item.notes || '',
   materialsCount: item.materialsCount || item.materials?.length || 0,
   createdAt: item.createdAt || item.created_at || '',
+  type: item.type ?? undefined,
 })
 
 export const supplierService = {
@@ -31,8 +32,7 @@ export const supplierService = {
       address: data.address,
       phone: data.phone,
       notes: data.notes,
-      type: data.type || 'supplier',
-      ...data,
+      type: data.type ?? null,
     }
     const response = await apiClient.post(API_ENDPOINTS.suppliers, payload)
     return mapSupplier(normalizeEntityResponse(response.data))
@@ -45,8 +45,7 @@ export const supplierService = {
       address: data.address,
       phone: data.phone,
       notes: data.notes,
-      type: data.type || 'supplier',
-      ...data,
+      type: data.type ?? null,
     }
     const response = await apiClient.put(`${API_ENDPOINTS.suppliers}/${id}`, payload)
     return mapSupplier(normalizeEntityResponse(response.data))
