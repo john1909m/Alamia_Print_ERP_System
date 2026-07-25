@@ -23,5 +23,7 @@ public class InkDto {
     private String name;
 
     @Size(max = 500, message = "Ink types must not exceed 500 characters")
-    private List<String> inkTypes;
+    private String inkType;
+
+    private Double stock;
 }

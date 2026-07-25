@@ -29,7 +29,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public MaterialDto create(MaterialDto materialDto) {
         log.info("Creating new material with name: {}", materialDto.getName());
-        validateMaterialNameIsUnique(null, materialDto.getName());
+//        validateMaterialNameIsUnique(null, materialDto.getName());
         Material material = materialMapper.toEntity(materialDto);
         Material savedMaterial = materialRepository.save(material);
         log.info("Material created successfully with id: {}", savedMaterial.getId());

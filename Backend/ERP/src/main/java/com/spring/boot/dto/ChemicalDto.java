@@ -24,5 +24,7 @@ public class ChemicalDto {
     private String name;
 
     @Size(max = 500, message = "Chemical types must not exceed 500 characters")
-    private List<String> chemicalTypes;
+    private String chemicalType;
+
+    private Double stock;
 }

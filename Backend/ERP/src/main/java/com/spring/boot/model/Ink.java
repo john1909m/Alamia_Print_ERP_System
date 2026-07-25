@@ -21,7 +21,9 @@ public class Ink {
     @JoinColumn(name = "material_id")
     private Material material;
 
-    private List<String> inkTypes;
+    private String inkType;
+
+    private Double stock;
 
 
 

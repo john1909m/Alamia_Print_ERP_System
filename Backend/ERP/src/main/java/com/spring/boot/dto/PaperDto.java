@@ -37,4 +37,6 @@ public class PaperDto {
 
     @Size(max = 500, message = "Notes must not exceed 500 characters")
     private String notes;
+
+    private Double stock;
 }

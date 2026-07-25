@@ -20,6 +20,8 @@ public class Chemical {
     @JoinColumn(name = "material_id")
     private Material material;
 
-    private List<String> chemicalTypes;
+    private String chemicalType;
+
+    private Double stock;
 
 }

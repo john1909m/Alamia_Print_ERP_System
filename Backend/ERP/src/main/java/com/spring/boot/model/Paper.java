@@ -30,6 +30,8 @@ public class Paper {
 
     private Double weight;
 
+    private Double stock;
+
     private String notes;
 
 
