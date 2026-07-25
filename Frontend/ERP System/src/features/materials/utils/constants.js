@@ -11,12 +11,10 @@ export const MATERIAL_TYPES = [
 
 // Material units as per backend DTO (Arabic labels)
 export const MATERIAL_UNITS = [
+  { value: 'SHEET', label: 'ورقة' },
   { value: 'KG', label: 'كيلوغرام' },
-  { value: 'G', label: 'غرام' },
-  { value: 'L', label: 'لتر' },
-  { value: 'ML', label: 'مللي لتر' },
-  { value: 'PCS', label: 'قطعة' },
-  { value: 'MT', label: 'متري' },
+  { value: 'Liter', label: 'لتر' },
+  { value: 'PIECE', label: 'قطعة' },
 ];
 
 // Helper to get label by value

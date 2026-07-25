@@ -32,6 +32,7 @@ export function EntityCrudPage({
   onDelete,
   filterSlot,
   getViewFields,
+  actionsRender, // optional custom renderer for actions column
 }) {
   const [formOpen, setFormOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -95,13 +96,18 @@ export function EntityCrudPage({
       key: 'actions',
       header: ar.common.actions,
       className: 'w-[80px]',
-      render: (row) => (
-        <ActionDropdown
-          onView={() => openView(row)}
-          onEdit={() => openEdit(row)}
-          onDelete={() => openDelete(row)}
-        />
-      ),
+      render: (row) => {
+        if (actionsRender) {
+          return actionsRender(row, openView, openEdit, openDelete)
+        }
+        return (
+          <ActionDropdown
+            onView={() => openView(row)}
+            onEdit={() => openEdit(row)}
+            onDelete={() => openDelete(row)}
+          />
+        )
+      },
     },
   ]
 
