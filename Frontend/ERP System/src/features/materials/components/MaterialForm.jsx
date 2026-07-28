@@ -17,11 +17,11 @@ import { MATERIAL_TYPES, MATERIAL_UNITS } from '@/features/materials/utils/const
 
 // Validation schema - only MaterialDto fields (stock removed as per requirement)
 const materialSchema = z.object({
-  name: z.string().min(2, ar.shared.validation.nameMin),
+  name: z.string().min(2, { message: ar.shared.validation.nameMin }),
   type: z.enum([...MATERIAL_TYPES.map(t => t.value)]),
   unit: z.enum([...MATERIAL_UNITS.map(u => u.value)]),
   // Removed stock field
-  notes: z.string().max(500).optional(),
+  notes: z.string().max(500, { message: 'Notes must not exceed 500 characters' }).optional()
 })
 
 const formSchema = materialSchema

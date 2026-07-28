@@ -20,7 +20,6 @@ public class InkDto {
 
     private Long material_id;
 
-    private String name;
 
     @Size(max = 500, message = "Ink types must not exceed 500 characters")
     private String inkType;

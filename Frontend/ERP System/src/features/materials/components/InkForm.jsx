@@ -1,43 +1,40 @@
 /** @jsxImportSource react */
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { FormField } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import { ar } from '@/constants/ar'
 
-// InkDto fields: name, inkType (array of strings), notes
+// InkDto fields: inkType (string with max length), stock (no name field as per backend DTO)
 const inkSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  inkType: z
-    .string()
-    .transform((val) => {
-      if (val === '') return []
-      return val
-        .split(',')
-        .map((t) => t.trim())
-        .filter((t) => t)
+  inkType: z.string().max(500, { message: 'Ink type must not exceed 500 characters' }).optional(),
+  stock: z
+    .preprocess((val) => {
+      if (val === '' || val === null || val === undefined) {
+        return undefined
+      }
+      const num = parseInt(val)
+      return isNaN(num) ? undefined : num
     })
-    .refine((arr) => arr.length <= 500, {
-      message: 'يجب ألا يتجاوز عدد الأنواع 500', // "Must not exceed 500 types"
-    }),
-  notes: z.string().max(500).optional(),
+    .refine((val) => {
+      return val === undefined || val >= 0
+    }, {
+      message: 'Stock must be a non-negative integer',
+    })
 })
 
 const InkForm = ({ onSubmit, defaultValues }) => {
   const {
     register,
-    control,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm({
     resolver: zodResolver(inkSchema),
     defaultValues: defaultValues || {
-      name: '',
       inkType: '',
-      notes: '',
+      stock: '',
     },
   })
 
@@ -54,33 +51,31 @@ const InkForm = ({ onSubmit, defaultValues }) => {
     <form onSubmit={handleSubmit(handleSubmitWithValidation)} className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <FormField label={ar.materials.name}>
-            <Input
-              {...register('name')}
-              placeholder={ar.materials.namePlaceholder}
-            />
-            {errors.name && <span className="text-sm text-destructive">{errors.name.message}</span>}
-          </FormField>
-        </div>
-
-        <div>
           <FormField label={ar.materials.inkType}>
             <Input
               {...register('inkType')}
-              placeholder={ar.materials.inkTypesPlaceholder || 'Enter ink types (comma-separated)'}
+              placeholder={ar.materials.inkTypePlaceholder || 'Enter ink type'}
             />
             {errors.inkType && <span className="text-sm text-destructive">{errors.inkType.message}</span>}
           </FormField>
         </div>
 
-        <div className="col-span-2">
-          <FormField label={ar.materials.description}>
-            <Textarea
-              {...register('notes')}
-              placeholder={ar.materials.descriptionPlaceholder}
+        <div>
+          <FormField label={ar.materials.stock}>
+            <Input
+              type="number"
+              {...register('stock')}
+              placeholder={ar.materials.stockPlaceholder || 'Enter stock quantity'}
+              min="0"
             />
-            {errors.notes && <span className="text-sm text-destructive">{errors.notes.message}</span>}
+            {errors.stock && <span className="text-sm text-destructive">{errors.stock.message}</span>}
           </FormField>
+        </div>
+
+        <div className="col-span-2">
+          <Button type="submit" className="w-full">
+            Save
+          </Button>
         </div>
       </div>
     </form>

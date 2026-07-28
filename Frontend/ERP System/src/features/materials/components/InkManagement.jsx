@@ -5,7 +5,7 @@ import { ar } from '@/constants/ar'
 import { inkService } from '@/features/materials/services/inkService'
 import InkForm from './InkForm'
 
-const InkManagement = ({ material, hideHeader = false }) => {
+const InkManagement = ({ material, hideHeader = false, showForm = false, onFinished }) => {
   const [inks, setInks] = useState([])
   const [loading, setLoading] = useState(false)
   const [editId, setEditId] = useState(null) // id of ink being edited
@@ -35,7 +35,7 @@ const InkManagement = ({ material, hideHeader = false }) => {
       const inkData = {
         ...data,
         material_id: material.id, // Ensure material_id is set
-        inkType: data.inkType, // already transformed to array by zod
+        inkType: data.inkType, // already a string from form
       }
       if (editId) {
         await inkService.update(editId, inkData)
@@ -53,6 +53,9 @@ const InkManagement = ({ material, hideHeader = false }) => {
       // TODO: show error to user
     } finally {
       setLoading(false)
+      if (onFinished) {
+        onFinished()
+      }
     }
   }
 
@@ -60,9 +63,8 @@ const InkManagement = ({ material, hideHeader = false }) => {
     setEditId(ink.id)
     // Set form data for editing
     setFormData({
-      name: ink.name || '',
-      inkType: Array.isArray(ink.inkType) ? ink.inkType.join(', ') : '',
-      notes: ink.notes || '',
+      inkType: ink.inkType || '',
+      stock: ink.stock !== null && ink.stock !== undefined ? ink.stock : '',
     })
   }
 
@@ -97,16 +99,20 @@ const InkManagement = ({ material, hideHeader = false }) => {
         </div>
       )}
 
-      {/* Ink Form */}
-      {editId && formData ? (
-        <InkForm
-          defaultValues={formData}
-          onSubmit={onSubmit}
-        />
-      ) : (
-        <InkForm
-          onSubmit={onSubmit}
-        />
+      {(showForm || editId !== null) && (
+        <>
+          {/* Ink Form */}
+          {editId && formData ? (
+            <InkForm
+              defaultValues={formData}
+              onSubmit={onSubmit}
+            />
+          ) : (
+            <InkForm
+              onSubmit={onSubmit}
+            />
+          )}
+        </>
       )}
 
       {/* Inks List */}
@@ -123,17 +129,19 @@ const InkManagement = ({ material, hideHeader = false }) => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-2">{ar.materials.name}</th>
                     <th className="text-left p-2">{ar.materials.inkType}</th>
+                    <th className="text-left p-2">{ar.materials.stock}</th>
                     <th className="text-center p-2">{ar.common.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {inks.map((ink) => (
                     <tr key={ink.id} className="border-t">
-                      <td className="p-2">{ink.name}</td>
                       <td className="p-2">
-                        {Array.isArray(ink.inkType) ? ink.inkType.join(', ') : ink.inkType}
+                        {ink.inkType || '-'}
+                      </td>
+                      <td className="p-2">
+                        {ink.stock !== null && ink.stock !== undefined ? ink.stock : '-'}
                       </td>
                       <td className="p-2 text-center space-x-2">
                         <Button

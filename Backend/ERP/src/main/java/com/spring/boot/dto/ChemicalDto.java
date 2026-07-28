@@ -21,7 +21,6 @@ public class ChemicalDto {
     @Positive(message = "Material ID must be positive")
     private Long material_id;
 
-    private String name;
 
     @Size(max = 500, message = "Chemical types must not exceed 500 characters")
     private String chemicalType;

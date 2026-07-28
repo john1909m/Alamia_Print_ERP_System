@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Edit, Trash2 } from 'lucide-react'
 import { ar } from '@/constants/ar'
-import { paperService } from '@/features/papers/services/paperService'
+import { paperService } from '@/features/materials/services/paperService'
 import PaperForm from './PaperForm'
 
-const PaperManagement = ({ material, hideHeader = false }) => {
+const PaperManagement = ({ material, hideHeader = false, showForm = false, onFinished }) => {
   const [papers, setPapers] = useState([])
   const [loading, setLoading] = useState(false)
   const [editId, setEditId] = useState(null) // id of paper being edited
@@ -52,6 +52,9 @@ const PaperManagement = ({ material, hideHeader = false }) => {
       // TODO: show error to user
     } finally {
       setLoading(false)
+      if (onFinished) {
+        onFinished()
+      }
     }
   }
 
@@ -59,14 +62,11 @@ const PaperManagement = ({ material, hideHeader = false }) => {
     setEditId(paper.id)
     // Set form data for editing
     setFormData({
-      name: paper.name || '',
-      paperType: paper.paperType || '',
       width: paper.width !== null && paper.width !== undefined ? paper.width : '',
       height: paper.height !== null && paper.height !== undefined ? paper.height : '',
-      brightness: paper.brightness !== null && paper.brightness !== undefined ? paper.brightness : '',
-      color: paper.color || '',
       weight: paper.weight !== null && paper.weight !== undefined ? paper.weight : '',
       notes: paper.notes || '',
+      stock: paper.stock !== null && paper.stock !== undefined ? paper.stock : '',
     })
   }
 
@@ -75,7 +75,7 @@ const PaperManagement = ({ material, hideHeader = false }) => {
       try {
         await paperService.delete(id)
         // Remove from list
-        setPapers(prev => papers.filter(p => p.id !== id))
+        setPapers(prev => prev.filter(p => p.id !== id))
       } catch (err) {
         console.error('Failed to delete paper:', err)
       }
@@ -101,16 +101,20 @@ const PaperManagement = ({ material, hideHeader = false }) => {
         </div>
       )}
 
-      {/* Paper Form */}
-      {editId && formData ? (
-        <PaperForm
-          defaultValues={formData}
-          onSubmit={onSubmit}
-        />
-      ) : (
-        <PaperForm
-          onSubmit={onSubmit}
-        />
+      {(showForm || editId !== null) && (
+        <>
+          {/* Paper Form */}
+          {editId && formData ? (
+            <PaperForm
+              defaultValues={formData}
+              onSubmit={onSubmit}
+            />
+          ) : (
+            <PaperForm
+              onSubmit={onSubmit}
+            />
+          )}
+        </>
       )}
 
       {/* Papers List */}
@@ -127,27 +131,27 @@ const PaperManagement = ({ material, hideHeader = false }) => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-2">{ar.materials.name}</th>
-                    <th className="text-left p-2">{ar.materials.type}</th>
+                    <th className="text-left p-2">Width</th>
+                    <th className="text-left p-2">Height</th>
                     <th className="text-left p-2">{ar.materials.weight}</th>
-                    <th className="text-left p-2">{ar.materials.brightness}</th>
-                    <th className="text-left p-2">{ar.materials.color}</th>
+                    <th className="text-left p-2">{ar.materials.stock}</th>
                     <th className="text-center p-2">{ar.common.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {papers.map((paper) => (
                     <tr key={paper.id} className="border-t">
-                      <td className="p-2">{paper.name}</td>
-                      <td className="p-2">{paper.paperType}</td>
+                      <td className="p-2">
+                        {paper.width !== null && paper.width !== undefined ? paper.width : '-'}
+                      </td>
+                      <td className="p-2">
+                        {paper.height !== null && paper.height !== undefined ? paper.height : '-'}
+                      </td>
                       <td className="p-2">
                         {paper.weight !== null && paper.weight !== undefined ? paper.weight : '-'}
                       </td>
                       <td className="p-2">
-                        {paper.brightness !== null && paper.brightness !== undefined ? paper.brightness : '-'}
-                      </td>
-                      <td className="p-2">
-                        {paper.color !== null && paper.color !== undefined ? paper.color : '-'}
+                        {paper.stock !== null && paper.stock !== undefined ? paper.stock : '-'}
                       </td>
                       <td className="p-2 text-center space-x-2">
                         <Button

@@ -22,7 +22,6 @@ public class PaperDto {
 
     private Long material_id;
 
-    private String name;
 
     private List<ProductionOrderDto> orders;
 

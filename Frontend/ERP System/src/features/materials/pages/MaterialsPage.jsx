@@ -2,13 +2,13 @@ import React from 'react'
 import { useState, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-import { CheckCircle, Plus, Trash2, Edit, ChevronDown, ChevronUp, Package, ShoppingCart } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Plus, Trash2, Edit, ChevronDown, ChevronUp } from 'lucide-react'
 import { materialService } from '@/features/materials/services/materialService'
 import { MaterialForm } from '@/features/materials/components/MaterialForm'
-import { PaperManagement } from '@/features/materials/components/PaperManagement'
-import { InkManagement } from '@/features/materials/components/InkManagement'
-import { ChemicalManagement } from '@/features/materials/components/ChemicalManagement'
+import PaperManagement from '@/features/materials/components/PaperManagement'
+import InkManagement from '@/features/materials/components/InkManagement'
+import ChemicalManagement from '@/features/materials/components/ChemicalManagement'
 import { ar } from '@/constants/ar'
 import { MATERIAL_TYPES, MATERIAL_UNITS } from '@/features/materials/utils/constants'
 
@@ -44,6 +44,8 @@ export default function MaterialsPage() {
   const [expandedMaterialId, setExpandedMaterialId] = useState(null)
   const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  // State for showing add variant form per material
+  const [showAddForm, setShowAddForm] = useState({})
 
   // State for forms
   const [materialFormVisible, setMaterialFormVisible] = useState(false)
@@ -96,6 +98,11 @@ export default function MaterialsPage() {
         if (expandedMaterialId === id) {
           setExpandedMaterialId(null)
         }
+        // Also hide add form for this material if open
+        setShowAddForm(prev => ({
+          ...prev,
+          [id]: false
+        }))
       } catch (error) {
         console.error('Failed to delete material:', error)
       }
@@ -237,15 +244,62 @@ export default function MaterialsPage() {
                       <tr>
                         <td colSpan={4} className="px-0 pt-0">
                           <div className="border-t">
+                            {/* Add Variant Button */}
+                            <div className="flex justify-between items-center mb-4">
+                              <h3 className="text-lg font-semibold">
+                                {material.type === 'PAPER' ? ar.materials.paperManagement :
+                                 material.type === 'INK' ? ar.materials.inkManagement :
+                                 material.type === 'CHEMICAL' ? ar.materials.chemicalManagement :
+                                 ''}
+                              </h3>
+                              <Button
+                                onClick={() => {
+                                  setShowAddForm(prev => ({
+                                    ...prev,
+                                    [material.id]: true
+                                  }))
+                                }}
+                                variant="outline"
+                              >
+                                {ar.materials.addVariant || 'إضافة صنف'}
+                              </Button>
+                            </div>
                             {/* Render appropriate management component based on material type */}
                             {material.type === 'PAPER' && (
-                              <PaperManagement material={material} />
+                              <PaperManagement
+                                material={material}
+                                showForm={showAddForm[material.id] || false}
+                                onFinished={() => {
+                                  setShowAddForm(prev => ({
+                                    ...prev,
+                                    [material.id]: false
+                                  }))
+                                }}
+                              />
                             )}
                             {material.type === 'INK' && (
-                              <InkManagement material={material} />
+                              <InkManagement
+                                material={material}
+                                showForm={showAddForm[material.id] || false}
+                                onFinished={() => {
+                                  setShowAddForm(prev => ({
+                                    ...prev,
+                                    [material.id]: false
+                                  }))
+                                }}
+                              />
                             )}
                             {material.type === 'CHEMICAL' && (
-                              <ChemicalManagement material={material} />
+                              <ChemicalManagement
+                                material={material}
+                                showForm={showAddForm[material.id] || false}
+                                onFinished={() => {
+                                  setShowAddForm(prev => ({
+                                    ...prev,
+                                    [material.id]: false
+                                  }))
+                                }}
+                              />
                             )}
                             {/* For other material types, we show a placeholder */}
                             {!(['PAPER', 'INK', 'CHEMICAL'].includes(material.type)) && (
@@ -295,5 +349,5 @@ export default function MaterialsPage() {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

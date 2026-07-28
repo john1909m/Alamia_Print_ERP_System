@@ -204,7 +204,7 @@ export default function ProductionOrderForm({
           <Controller
             control={control}
             name="productIds"
-            render({ ({ field }) => (
+            render(({ field }) => (
               <Select
                 id="productIds"
                 multiple
@@ -230,7 +230,7 @@ export default function ProductionOrderForm({
           <Controller
             control={control}
             name="materialIds"
-            render({ ({ field }) => (
+            render(({ field }) => (
               <Select
                 id="materialIds"
                 multiple
@@ -286,7 +286,7 @@ export default function ProductionOrderForm({
           <Controller
             control={control}
             name="status"
-            render({ ({ field }) => (
+            render(({ field }) => (
               <Select
                 id="status"
                 value={field.value}

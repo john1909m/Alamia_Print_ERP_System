@@ -5,7 +5,7 @@ import { ar } from '@/constants/ar'
 import { chemicalService } from '@/features/materials/services/chemicalService'
 import ChemicalForm from './ChemicalForm'
 
-const ChemicalManagement = ({ material, hideHeader = false }) => {
+const ChemicalManagement = ({ material, hideHeader = false, showForm = false, onFinished }) => {
   const [chemicals, setChemicals] = useState([])
   const [loading, setLoading] = useState(false)
   const [editId, setEditId] = useState(null) // id of chemical being edited
@@ -35,7 +35,7 @@ const ChemicalManagement = ({ material, hideHeader = false }) => {
       const chemicalData = {
         ...data,
         material_id: material.id, // Ensure material_id is set
-        chemicalType: data.chemicalType, // already transformed to array by zod
+        chemicalType: data.chemicalType, // already a string from form
       }
       if (editId) {
         await chemicalService.update(editId, chemicalData)
@@ -53,6 +53,9 @@ const ChemicalManagement = ({ material, hideHeader = false }) => {
       // TODO: show error to user
     } finally {
       setLoading(false)
+      if (onFinished) {
+        onFinished()
+      }
     }
   }
 
@@ -60,9 +63,8 @@ const ChemicalManagement = ({ material, hideHeader = false }) => {
     setEditId(chemical.id)
     // Set form data for editing
     setFormData({
-      name: chemical.name || '',
-      chemicalType: Array.isArray(chemical.chemicalType) ? chemical.chemicalType.join(', ') : '',
-      notes: chemical.notes || '',
+      chemicalType: chemical.chemicalType || '',
+      stock: chemical.stock !== null && chemical.stock !== undefined ? chemical.stock : '',
     })
   }
 
@@ -97,16 +99,20 @@ const ChemicalManagement = ({ material, hideHeader = false }) => {
         </div>
       )}
 
-      {/* Chemical Form */}
-      {editId && formData ? (
-        <ChemicalForm
-          defaultValues={formData}
-          onSubmit={onSubmit}
-        />
-      ) : (
-        <ChemicalForm
-          onSubmit={onSubmit}
-        />
+      {(showForm || editId !== null) && (
+        <>
+          {/* Chemical Form */}
+          {editId && formData ? (
+            <ChemicalForm
+              defaultValues={formData}
+              onSubmit={onSubmit}
+            />
+          ) : (
+            <ChemicalForm
+              onSubmit={onSubmit}
+            />
+          )}
+        </>
       )}
 
       {/* Chemicals List */}
@@ -123,17 +129,19 @@ const ChemicalManagement = ({ material, hideHeader = false }) => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-2">{ar.materials.name}</th>
                     <th className="text-left p-2">{ar.materials.chemicalType}</th>
+                    <th className="text-left p-2">{ar.materials.stock}</th>
                     <th className="text-center p-2">{ar.common.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {chemicals.map((chemical) => (
                     <tr key={chemical.id} className="border-t">
-                      <td className="p-2">{chemical.name}</td>
                       <td className="p-2">
-                        {Array.isArray(chemical.chemicalType) ? chemical.chemicalType.join(', ') : chemical.chemicalType || '-'}
+                        {chemical.chemicalType || '-'}
+                      </td>
+                      <td className="p-2">
+                        {chemical.stock !== null && chemical.stock !== undefined ? chemical.stock : '-'}
                       </td>
                       <td className="p-2 text-center space-x-2">
                         <Button
