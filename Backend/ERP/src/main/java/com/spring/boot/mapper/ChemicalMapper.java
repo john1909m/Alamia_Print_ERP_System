@@ -5,9 +5,7 @@ import com.spring.boot.dto.ChemicalDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-/**
- * Mapper for converting between Chemical entity and ChemicalDto.
- */
+
 @Mapper(componentModel = "spring")
 public interface ChemicalMapper extends BaseMapper {
 

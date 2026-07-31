@@ -1,8 +1,33 @@
+// src/features/materials/components/PaperSection.jsx
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import PaperForm from '@/features/materials/components/PaperForm'
 import { paperService } from '@/features/materials/services/paperService'
+
+// دالة للحصول على التسمية العربية لنوع الورق
+const getPaperTypeLabel = (type) => {
+  const labels = {
+    'WHITE': 'أبيض',
+    'COATED': 'مغطى',
+    'BRISTOL_COATED': 'بريستول مغطى',
+    'STICKER': 'ستيكر',
+    'DUPLEX': 'دوبلكس',
+  }
+  return labels[type] || type || '-'
+}
+
+// دالة للحصول على لون نوع الورق
+const getPaperTypeColor = (type) => {
+  const colors = {
+    'WHITE': 'bg-gray-100 text-gray-800',
+    'COATED': 'bg-blue-100 text-blue-800',
+    'BRISTOL_COATED': 'bg-purple-100 text-purple-800',
+    'STICKER': 'bg-yellow-100 text-yellow-800',
+    'DUPLEX': 'bg-green-100 text-green-800',
+  }
+  return colors[type] || 'bg-gray-100 text-gray-800'
+}
 
 const PaperSection = ({ material, showForm, onFinished }) => {
   const [papers, setPapers] = useState([])
@@ -19,7 +44,6 @@ const PaperSection = ({ material, showForm, onFinished }) => {
     setLoading(true)
     try {
       const response = await paperService.getAll()
-      // التصفية باستخدام materialId
       const filtered = response.filter(p => p.materialId === material.id || p.material_id === material.id)
       setPapers(filtered)
     } catch (error) {
@@ -30,6 +54,7 @@ const PaperSection = ({ material, showForm, onFinished }) => {
   }
 
   const filteredPapers = papers.filter(p =>
+    p.paperType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.width?.toString().includes(searchTerm) ||
     p.height?.toString().includes(searchTerm) ||
     p.weight?.toString().includes(searchTerm) ||
@@ -38,10 +63,9 @@ const PaperSection = ({ material, showForm, onFinished }) => {
 
   const handleSubmit = async (data) => {
     try {
-      // تأكد من إضافة materialId بالشكل الصحيح
       const submitData = {
         ...data,
-        materialId: material.id, // استخدم materialId بدلاً من material_id
+        materialId: material.id,
       }
 
       if (editingPaper) {
@@ -113,6 +137,7 @@ const PaperSection = ({ material, showForm, onFinished }) => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50 border-b">
+                      <th className="px-3 py-2 text-right">النوع</th>
                       <th className="px-3 py-2 text-right">العرض</th>
                       <th className="px-3 py-2 text-right">الارتفاع</th>
                       <th className="px-3 py-2 text-right">الوزن</th>
@@ -123,6 +148,11 @@ const PaperSection = ({ material, showForm, onFinished }) => {
                   <tbody>
                     {filteredPapers.map(paper => (
                       <tr key={paper.id} className="border-t hover:bg-gray-50">
+                        <td className="px-3 py-2">
+                          <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${getPaperTypeColor(paper.paperType)}`}>
+                            {getPaperTypeLabel(paper.paperType)}
+                          </span>
+                        </td>
                         <td className="px-3 py-2">{paper.width}</td>
                         <td className="px-3 py-2">{paper.height}</td>
                         <td className="px-3 py-2">{paper.weight}</td>

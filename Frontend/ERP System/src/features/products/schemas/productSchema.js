@@ -1,12 +1,13 @@
+// src/features/products/schemas/productSchema.js
 import { z } from 'zod'
 
 export function createProductSchema(messages) {
   return z.object({
-    productCode: z.string().min(1, messages.productCodeRequired),
-    productName: z.string().min(1, messages.productNameRequired),
-    companyId: z.number().int().positive(messages.companyRequired),
-    category: z.string().min(1, messages.categoryRequired),
-    description: z.string().optional(),
+    productCode: z.string().optional(),
+    productName: z.string().min(1, messages.productNameRequired || 'Product name is required'),
+    companyId: z.coerce.number().int().positive(messages.companyRequired || 'Company is required'),
+    category: z.enum(['LEAFLET', 'BOX']).default('LEAFLET'), // Enum من الـ Backend
+    description: z.string().max(500).optional(),
     status: z.enum(['active', 'inactive']).default('active'),
   })
 }
@@ -14,8 +15,8 @@ export function createProductSchema(messages) {
 export const defaultProductValues = {
   productCode: '',
   productName: '',
-  companyId: 0, // will be overridden by actual value
-  category: '',
+  companyId: 0,
+  category: 'LEAFLET', // افتراضي
   description: '',
   status: 'active',
 }

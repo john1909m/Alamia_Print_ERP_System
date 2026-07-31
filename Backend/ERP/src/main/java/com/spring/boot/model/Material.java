@@ -20,6 +20,7 @@ public class Material {
 
     private String name;
 
+    @Enumerated(EnumType.STRING)
     private MaterialType type;
 
     private MaterialUnit unit;
@@ -37,12 +38,6 @@ public class Material {
     @OneToMany(mappedBy = "material",cascade = CascadeType.ALL)
     private List<Chemical> chemicals;
 
-    @ManyToMany
-    @JoinTable(
-            name = "material_production_order",
-            joinColumns = @JoinColumn(name = "material_id"),
-            inverseJoinColumns = @JoinColumn(name = "production_order_id")
-    )
-    private List<ProductionOrder> productionOrders;
+
 
 }

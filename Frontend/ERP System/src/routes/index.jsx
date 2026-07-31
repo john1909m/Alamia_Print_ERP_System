@@ -1,3 +1,4 @@
+// src/routes/router.jsx
 import { createBrowserRouter } from 'react-router-dom'
 import { DashboardLayout } from '@/layouts/DashboardLayout'
 import { LazyPage } from '@/routes/LazyPage'
@@ -10,8 +11,6 @@ import {
   ProductsPage,
   PurchasesPage,
   ProductionOrdersPage,
-  CreateProductionOrderPage,
-  EditProductionOrderPage,
   ProductionOrderDetailPage,
   ReportsPage,
   SettingsPage,
@@ -86,32 +85,14 @@ export const router = createBrowserRouter([
             <ProductionOrdersPage />
           </LazyPage>
         ),
-        children: [
-          {
-            path: 'create',
-            element: (
-              <LazyPage>
-                <CreateProductionOrderPage />
-              </LazyPage>
-            ),
-          },
-          {
-            path: ':id',
-            element: (
-              <LazyPage>
-                <ProductionOrderDetailPage />
-              </LazyPage>
-            ),
-          },
-          {
-            path: ':id/edit',
-            element: (
-              <LazyPage>
-                <EditProductionOrderPage />
-              </LazyPage>
-            ),
-          },
-        ],
+      },
+      {
+        path: 'production-orders/:id',
+        element: (
+          <LazyPage>
+            <ProductionOrderDetailPage />
+          </LazyPage>
+        ),
       },
       {
         path: 'reports',

@@ -23,8 +23,8 @@ public class ProductionOrder extends BaseEntity{
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @ManyToMany(mappedBy = "orders")
-    private List<Product> product;
+    @ManyToOne
+    private Product product;
 
     private Double quantity;
 
@@ -32,16 +32,32 @@ public class ProductionOrder extends BaseEntity{
     @JoinColumn(name = "paper_id")
     Paper paper;
 
-    @ManyToMany(mappedBy = "productionOrders")
-    private List<Material> material;
+    @ManyToMany
+    @JoinTable(
+            name = "production_order_inks",
+            joinColumns = @JoinColumn(name = "production_order_id"),
+            inverseJoinColumns = @JoinColumn(name = "ink_id")
+    )
+    private List<Ink> inks;
+
+    @ManyToMany
+    @JoinTable(
+            name = "production_order_chemicals",
+            joinColumns = @JoinColumn(name = "production_order_id"),
+            inverseJoinColumns = @JoinColumn(name = "chemical_id")
+    )
+    private List<Chemical> chemicals;
 
     private Double requiredSheets;
 
+    private Double requiredInks;
+
+    private Double requiredChemicals;
+
+    @Enumerated(EnumType.STRING)
     private ProductionStatus status;
 
     private String description;
-
-
 
 
 }

@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
  */
 @Mapper(componentModel = "spring", uses = {PaperMapper.class, InkMapper.class, ChemicalMapper.class, ProductionOrderMapper.class})
 public interface MaterialMapper extends BaseMapper {
-    @Mapping(source = "productionOrders", target = "productionOrders")
+//    @Mapping(source = "productionOrders", target = "productionOrders")
     MaterialDto toDto(Material entity);
     Material toEntity(MaterialDto dto);
 }

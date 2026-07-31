@@ -1,11 +1,20 @@
+// src/features/materials/components/PaperForm.jsx
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { FormField } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const paperSchema = z.object({
+  paperType: z.enum(['WHITE', 'COATED', 'BRISTOL_COATED', 'STICKER', 'DUPLEX']).default('WHITE'),
   width: z.coerce.number().positive('العرض يجب أن يكون أكبر من 0'),
   height: z.coerce.number().positive('الارتفاع يجب أن يكون أكبر من 0'),
   weight: z.coerce.number().positive('الوزن يجب أن يكون أكبر من 0'),
@@ -16,12 +25,14 @@ const paperSchema = z.object({
 const PaperForm = ({ onSubmit, defaultValues, onCancel }) => {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm({
     resolver: zodResolver(paperSchema),
     defaultValues: defaultValues || {
+      paperType: 'WHITE',
       width: '',
       height: '',
       weight: '',
@@ -39,33 +50,64 @@ const PaperForm = ({ onSubmit, defaultValues, onCancel }) => {
     }
   }
 
+  // دالة للحصول على التسمية العربية لنوع الورق
+  const getPaperTypeLabel = (type) => {
+    const labels = {
+      'WHITE': 'أبيض',
+      'COATED': 'مغطى',
+      'BRISTOL_COATED': 'بريستول مغطى',
+      'STICKER': 'ستيكر',
+      'DUPLEX': 'دوبلكس',
+    }
+    return labels[type] || type
+  }
+
   return (
     <form onSubmit={handleSubmit(handleSubmitWithValidation)} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
-        <FormField label="العرض">
+        {/* نوع الورق - جديد */}
+        <div className="col-span-2">
+          <FormField label="نوع الورق" error={errors.paperType?.message} required>
+            <Controller
+              control={control}
+              name="paperType"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر نوع الورق" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="WHITE">أبيض</SelectItem>
+                    <SelectItem value="COATED">مغطى</SelectItem>
+                    <SelectItem value="BRISTOL_COATED">بريستول مغطى</SelectItem>
+                    <SelectItem value="STICKER">ستيكر</SelectItem>
+                    <SelectItem value="DUPLEX">دوبلكس</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </FormField>
+        </div>
+
+        <FormField label="العرض" error={errors.width?.message} required>
           <Input type="number" {...register('width')} placeholder="أدخل العرض" step="0.01" />
-          {errors.width && <span className="text-sm text-red-500">{errors.width.message}</span>}
         </FormField>
 
-        <FormField label="الارتفاع">
+        <FormField label="الارتفاع" error={errors.height?.message} required>
           <Input type="number" {...register('height')} placeholder="أدخل الارتفاع" step="0.01" />
-          {errors.height && <span className="text-sm text-red-500">{errors.height.message}</span>}
         </FormField>
 
-        <FormField label="الوزن">
+        <FormField label="الوزن" error={errors.weight?.message} required>
           <Input type="number" {...register('weight')} placeholder="أدخل الوزن" step="0.01" />
-          {errors.weight && <span className="text-sm text-red-500">{errors.weight.message}</span>}
         </FormField>
 
-        <FormField label="المخزون">
+        <FormField label="المخزون" error={errors.stock?.message} required>
           <Input type="number" {...register('stock')} placeholder="أدخل المخزون" min="0" />
-          {errors.stock && <span className="text-sm text-red-500">{errors.stock.message}</span>}
         </FormField>
 
         <div className="col-span-2">
-          <FormField label="ملاحظات">
+          <FormField label="ملاحظات" error={errors.notes?.message}>
             <Input {...register('notes')} placeholder="أدخل ملاحظات (اختياري)" />
-            {errors.notes && <span className="text-sm text-red-500">{errors.notes.message}</span>}
           </FormField>
         </div>
       </div>

@@ -25,6 +25,9 @@ public class Ink {
 
     private Double stock;
 
+    @ManyToMany(mappedBy = "inks")
+    private List<ProductionOrder> productionOrders;
+
 
 
 }

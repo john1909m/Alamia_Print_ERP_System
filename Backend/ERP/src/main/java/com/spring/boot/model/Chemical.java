@@ -24,4 +24,8 @@ public class Chemical {
 
     private Double stock;
 
+    @ManyToMany(mappedBy = "chemicals")
+    private List<ProductionOrder> productionOrders;
+
+
 }

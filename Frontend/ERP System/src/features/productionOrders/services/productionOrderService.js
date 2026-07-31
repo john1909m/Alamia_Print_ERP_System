@@ -2,95 +2,125 @@ import { apiClient, normalizePageResponse, normalizeEntityResponse } from '@/ser
 import { API_ENDPOINTS } from '@/services/api'
 
 const mapProductionOrder = (item = {}) => {
-  // Extract IDs from the response (these come directly from the DTO)
-  const companyId = item.company_id ?? null
-  const productIds = item.product_ids ?? []
-  const paperId = item.paper_id ?? null
-  const materialIds = item.material_ids ?? []
-
   return {
-    ...item,
     id: item.id,
-    // For form submission, we'll use the ID fields directly
-    companyId: companyId,
-    productIds: productIds,
-    paperId: paperId,
-    materialIds: materialIds,
-    quantity: item.quantity,
-    requiredSheets: item.requiredSheets,
-    status: item.status || 'pending',
+    companyId: item.companyId || item.company_id || null,
+    productId: item.productId || item.product_id || null,
+    quantity: item.quantity || 0,
+    paperId: item.paperId || item.paper_id || null,
+    inkIds: item.inkIds || item.ink_ids || [],
+    chemicalIds: item.chemicalIds || item.chemical_ids || [],
+    requiredSheets: item.requiredSheets || item.required_sheets || 0,
+    requiredChemicals: item.requiredChemicals || item.required_chemicals || 0,
+    requiredInks: item.requiredInks || item.required_inks || 0,
+    status: item.status || 'SENT_PO',
     description: item.description || '',
     createdAt: item.createdAt || item.created_at || '',
-    updatedAt: item.updatedAt || item.updated_at || ''
+    updatedAt: item.updatedAt || item.updated_at || '',
   }
 }
 
 export const productionOrderService = {
   getAll: async () => {
-    const response = await apiClient.get(API_ENDPOINTS.productionOrders)
-    return normalizePageResponse(response.data).map(mapProductionOrder)
+    console.log('📦 Fetching all production orders...')
+    try {
+      const response = await apiClient.get(API_ENDPOINTS.productionOrders)
+      console.log('📦 Production orders response:', response.data)
+      const normalized = normalizePageResponse(response.data)
+      return normalized.map(mapProductionOrder)
+    } catch (error) {
+      console.error('❌ Error fetching production orders:', error)
+      throw error
+    }
   },
 
   getById: async (id) => {
-    const response = await apiClient.get(`${API_ENDPOINTS.productionOrders}/${id}`)
-    return mapProductionOrder(normalizeEntityResponse(response.data))
+    console.log(`📦 Fetching production order ${id}...`)
+    try {
+      const response = await apiClient.get(`${API_ENDPOINTS.productionOrders}/${id}`)
+      console.log('📦 Production order response:', response.data)
+      return mapProductionOrder(normalizeEntityResponse(response.data))
+    } catch (error) {
+      console.error(`❌ Error fetching production order ${id}:`, error)
+      throw error
+    }
   },
 
   create: async (data) => {
-    // Map form field names to DTO field names
-    const payload = {
-      company_id: data.companyId,
-      product_ids: data.productIds || [],
-      quantity: data.quantity,
-      paper_id: data.paperId,
-      material_ids: data.materialIds || [],
-      requiredSheets: data.requiredSheets ?? data.quantity, // Default to quantity if not provided
-      status: data.status || 'pending',
-      description: data.description || data.notes || '' // Map notes to description for backward compatibility
-    }
-
-    // Remove undefined/null values
-    Object.keys(payload).forEach(key => {
-      if (payload[key] === undefined || payload[key] === null) {
-        delete payload[key]
+    console.log('📦 Creating production order with data:', data)
+    try {
+      const payload = {
+        companyId: data.companyId,
+        productId: data.productId,
+        quantity: data.quantity,
+        paperId: data.paperId,
+        inkIds: data.inkIds || [],
+        chemicalIds: data.chemicalIds || [],
+        requiredSheets: data.requiredSheets || 0,
+        requiredChemicals: data.requiredChemicals || 0,
+        requiredInks: data.requiredInks || 0,
+        status: data.status || 'SENT_PO',
+        description: data.description || '',
       }
-    })
-
-    const response = await apiClient.post(API_ENDPOINTS.productionOrders, payload)
-    return mapProductionOrder(normalizeEntityResponse(response.data))
+      console.log('📦 Production order payload:', payload)
+      
+      const response = await apiClient.post(API_ENDPOINTS.productionOrders, payload)
+      console.log('📦 Create production order response:', response.data)
+      return mapProductionOrder(normalizeEntityResponse(response.data))
+    } catch (error) {
+      console.error('❌ Error creating production order:', error)
+      throw error
+    }
   },
 
   update: async (id, data) => {
-    // Map form field names to DTO field names (same as create)
-    const payload = {
-      company_id: data.companyId,
-      product_ids: data.productIds || [],
-      quantity: data.quantity,
-      paper_id: data.paperId,
-      material_ids: data.materialIds || [],
-      requiredSheets: data.requiredSheets ?? data.quantity, // Default to quantity if not provided
-      status: data.status || 'pending',
-      description: data.description || data.notes || ''
-    }
-
-    // Remove undefined/null values
-    Object.keys(payload).forEach(key => {
-      if (payload[key] === undefined || payload[key] === null) {
-        delete payload[key]
+    console.log(`📦 Updating production order ${id} with data:`, data)
+    try {
+      const payload = {
+        companyId: data.companyId,
+        productId: data.productId,
+        quantity: data.quantity,
+        paperId: data.paperId,
+        inkIds: data.inkIds || [],
+        chemicalIds: data.chemicalIds || [],
+        requiredSheets: data.requiredSheets || 0,
+        requiredChemicals: data.requiredChemicals || 0,
+        requiredInks: data.requiredInks || 0,
+        status: data.status || 'SENT_PO',
+        description: data.description || '',
       }
-    })
-
-    const response = await apiClient.put(`${API_ENDPOINTS.productionOrders}/${id}`, payload)
-    return mapProductionOrder(normalizeEntityResponse(response.data))
+      console.log('📦 Production order update payload:', payload)
+      
+      const response = await apiClient.put(`${API_ENDPOINTS.productionOrders}/${id}`, payload)
+      console.log('📦 Update production order response:', response.data)
+      return mapProductionOrder(normalizeEntityResponse(response.data))
+    } catch (error) {
+      console.error(`❌ Error updating production order ${id}:`, error)
+      throw error
+    }
   },
 
   delete: async (id) => {
-    await apiClient.delete(`${API_ENDPOINTS.productionOrders}/${id}`)
-    return { success: true, id: Number(id) }
+    console.log(`📦 Deleting production order ${id}...`)
+    try {
+      const response = await apiClient.delete(`${API_ENDPOINTS.productionOrders}/${id}`)
+      console.log('📦 Delete production order response:', response.data)
+      return { success: true, id: Number(id) }
+    } catch (error) {
+      console.error(`❌ Error deleting production order ${id}:`, error)
+      throw error
+    }
   },
 
   updateStatus: async (id, status) => {
-    const response = await apiClient.put(`${API_ENDPOINTS.productionOrders}/${id}`, { status })
-    return mapProductionOrder(normalizeEntityResponse(response.data))
+    console.log(`📦 Updating status of production order ${id} to ${status}...`)
+    try {
+      const response = await apiClient.put(`${API_ENDPOINTS.productionOrders}/${id}`, { status })
+      console.log('📦 Update status response:', response.data)
+      return mapProductionOrder(normalizeEntityResponse(response.data))
+    } catch (error) {
+      console.error(`❌ Error updating status of production order ${id}:`, error)
+      throw error
+    }
   }
 }

@@ -24,7 +24,6 @@ public class ProductDto {
     @Size(max = 100, message = "Product name must not exceed 100 characters")
     private String name;
 
-    @NotBlank(message = "Product code is required")
     @Size(max = 50, message = "Product code must not exceed 50 characters")
     private String code;
 
@@ -36,5 +35,6 @@ public class ProductDto {
     private List<ProductionOrderDto> orders;
 
     @NotNull(message = "Company is required")
-    private Long company_id;
+    private Long companyId;
+
 }

@@ -1,13 +1,16 @@
+// src/features/materials/services/paperService.js
 import { apiClient, normalizePageResponse, normalizeEntityResponse } from '@/services/api'
 import { API_ENDPOINTS } from '@/services/api'
 
 const mapPaper = (item = {}) => {
+  console.log('📦 Mapping paper:', item)
   return {
     id: item.id,
     materialId: item.materialId || item.material_id,
-    width: item.width,
-    height: item.height,
-    weight: item.weight,
+    paperType: item.paperType || item.type || 'WHITE',
+    width: item.width || 0,
+    height: item.height || 0,
+    weight: item.weight || 0,
     stock: item.stock || 0,
     notes: item.notes || '',
   }
@@ -15,44 +18,85 @@ const mapPaper = (item = {}) => {
 
 export const paperService = {
   getAll: async () => {
-    const response = await apiClient.get(API_ENDPOINTS.papers)
-    return normalizePageResponse(response.data).map(mapPaper)
+    console.log('📦 Fetching all papers...')
+    try {
+      const response = await apiClient.get(API_ENDPOINTS.papers)
+      console.log('📦 Papers response:', response.data)
+      const normalized = normalizePageResponse(response.data)
+      return normalized.map(mapPaper)
+    } catch (error) {
+      console.error('❌ Error fetching papers:', error)
+      throw error
+    }
   },
 
   getById: async (id) => {
-    const response = await apiClient.get(`${API_ENDPOINTS.papers}/${id}`)
-    return mapPaper(normalizeEntityResponse(response.data))
+    console.log(`📦 Fetching paper ${id}...`)
+    try {
+      const response = await apiClient.get(`${API_ENDPOINTS.papers}/${id}`)
+      console.log('📦 Paper response:', response.data)
+      return mapPaper(normalizeEntityResponse(response.data))
+    } catch (error) {
+      console.error(`❌ Error fetching paper ${id}:`, error)
+      throw error
+    }
   },
 
   create: async (data) => {
-    // تأكد من إرسال البيانات بالشكل الصحيح للـ API
-    const payload = {
-      materialId: data.materialId,
-      width: data.width,
-      height: data.height,
-      weight: data.weight,
-      stock: data.stock || 0,
-      notes: data.notes || '',
+    console.log('📦 Creating paper with data:', data)
+    try {
+      const payload = {
+        materialId: data.materialId,
+        paperType: data.paperType || 'WHITE',
+        width: data.width || 0,
+        height: data.height || 0,
+        weight: data.weight || 0,
+        stock: data.stock || 0,
+        notes: data.notes || '',
+      }
+      console.log('📦 Paper payload:', payload)
+      
+      const response = await apiClient.post(API_ENDPOINTS.papers, payload)
+      console.log('📦 Create paper response:', response.data)
+      return mapPaper(normalizeEntityResponse(response.data))
+    } catch (error) {
+      console.error('❌ Error creating paper:', error)
+      throw error
     }
-    const response = await apiClient.post(API_ENDPOINTS.papers, payload)
-    return mapPaper(normalizeEntityResponse(response.data))
   },
 
   update: async (id, data) => {
-    const payload = {
-      materialId: data.materialId,
-      width: data.width,
-      height: data.height,
-      weight: data.weight,
-      stock: data.stock || 0,
-      notes: data.notes || '',
+    console.log(`📦 Updating paper ${id} with data:`, data)
+    try {
+      const payload = {
+        materialId: data.materialId,
+        paperType: data.paperType || 'WHITE',
+        width: data.width || 0,
+        height: data.height || 0,
+        weight: data.weight || 0,
+        stock: data.stock || 0,
+        notes: data.notes || '',
+      }
+      console.log('📦 Paper update payload:', payload)
+      
+      const response = await apiClient.put(`${API_ENDPOINTS.papers}/${id}`, payload)
+      console.log('📦 Update paper response:', response.data)
+      return mapPaper(normalizeEntityResponse(response.data))
+    } catch (error) {
+      console.error(`❌ Error updating paper ${id}:`, error)
+      throw error
     }
-    const response = await apiClient.put(`${API_ENDPOINTS.papers}/${id}`, payload)
-    return mapPaper(normalizeEntityResponse(response.data))
   },
 
   delete: async (id) => {
-    await apiClient.delete(`${API_ENDPOINTS.papers}/${id}`)
-    return { success: true, id: Number(id) }
+    console.log(`📦 Deleting paper ${id}...`)
+    try {
+      const response = await apiClient.delete(`${API_ENDPOINTS.papers}/${id}`)
+      console.log('📦 Delete paper response:', response.data)
+      return { success: true, id: Number(id) }
+    } catch (error) {
+      console.error(`❌ Error deleting paper ${id}:`, error)
+      throw error
+    }
   },
 }

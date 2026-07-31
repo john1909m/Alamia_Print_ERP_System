@@ -1,5 +1,6 @@
 package com.spring.boot.model;
 
+import com.spring.boot.enums.PaperType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,9 @@ public class Paper {
     private Double weight;
 
     private Double stock;
+
+    @Enumerated(EnumType.STRING)
+    private PaperType paperType;
 
     private String notes;
 

@@ -4,6 +4,7 @@ import com.spring.boot.model.Company;
 import com.spring.boot.model.Paper;
 import com.spring.boot.model.Product;
 import com.spring.boot.enums.ProductionStatus;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -24,22 +25,32 @@ public class ProductionOrderDto {
     private Long id;
 
     @NotNull(message = "Company is required")
-    private CompanyDto company;
+    private Long companyId;
 
     @NotNull(message = "Product list is required")
-    private List<ProductDto> product;
+    private Long productId;
 
     @Positive(message = "Quantity must be positive")
     private Double quantity;
 
     @NotNull(message = "Paper is required")
-    private PaperDto paper;
+    private Long paperId;
 
-    @Size(max = 500, message = "Material list must not exceed 500 items")
-    private List<MaterialDto> material;
+    @Size(max = 500, message = "ink list must not exceed 500 items")
+    private List<Long> inkIds;
+
+    @Size(max = 500, message = "chemical list must not exceed 500 items")
+    private List<Long> chemicalIds;
+
 
     @Positive(message = "Required sheets must be positive")
     private Double requiredSheets;
+
+    @Positive(message = "Required sheets must be positive")
+    private Double requiredChemicals;
+
+    @Positive(message = "Required sheets must be positive")
+    private Double requiredInks;
 
     @NotNull(message = "Status is required")
     private ProductionStatus status;

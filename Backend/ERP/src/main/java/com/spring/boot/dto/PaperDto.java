@@ -4,6 +4,7 @@ import com.spring.boot.dto.MaterialDto;
 import com.spring.boot.dto.ProductionOrderDto;
 import java.util.List;
 
+import com.spring.boot.enums.PaperType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -38,4 +39,7 @@ public class PaperDto {
     private String notes;
 
     private Double stock;
+
+
+    private PaperType paperType;
 }
