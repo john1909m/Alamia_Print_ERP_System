@@ -28,120 +28,150 @@ const statusOptions = [
   { value: 'completed', label: ar.STATUS_LABELS.completed },
   { value: 'shipped', label: ar.STATUS_LABELS.shipped },
   { value: 'delivered', label: ar.STATUS_LABELS.delivered },
-  { value: 'cancelled', label: ar.STATUS_LABELS.cancelled },
 ];
 
-const formSchema = z.object({
-  companyId: z.number().int().positive({ message: ar.common.companyRequired }),
-  productIds: z.array(z.number().int().positive()).min(1, { message: ar.common.productRequired }),
-  paperId: z.number().int().positive({ message: 'يرجى اختيار ورق' }), // Custom message since no key in ar.js
-  quantity: z.number().positive({ message: ar.common.quantityRequired }), // Allow decimals
-  requiredSheets: z.preprocess(
-    (val) => (val === '' ? undefined : Number(val)),
-    z.number().positive().optional()
-  ),
-  status: z.enum([
-    'pending',
-    'approved',
-    'montage',
-    'printing',
-    'finishing',
-    'completed',
-    'shipped',
-    'delivered',
-    'cancelled',
-  ]),
-  description: z.string().optional(),
-});
+const productStatusOptions = [
+  { value: 'design', label: 'التصميم' },
+  { value: 'printing', label: 'الطباعة' },
+  { value: 'finishing', label: 'التشطيب' },
+  { value: 'completed', label: 'مكتمل' },
+];
+
+const statusMap = {
+  pending: 'pending',
+  approved: 'approved',
+  montage: 'montage',
+  printing: 'printing',
+  finishing: 'finishing',
+  completed: 'completed',
+  shipped: 'shipped',
+  delivered: 'delivered',
+};
+
+const productStatusMap = {
+  design: 'design',
+  printing: 'printing',
+  finishing: 'finishing',
+  completed: 'completed',
+};
 
 export default function ProductionOrderForm({
+  order,
   onSubmit,
-  defaultValues,
+  loading,
+  companies,
+  products,
+  papers,
+  materials,
 }) {
   const {
     register,
-    handleSubmit,
-    formState: { errors },
-    reset,
     control,
+    handleSubmit,
+    formState: { errors, isDirty },
+    reset,
   } = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(
+      z.object({
+        companyId: z.number().positive(),
+        productIds: z.array(z.number().positive()).nonempty(),
+        paperId: z.number().positive(),
+        materialIds: z.array(z.number().positive()).nonempty(),
+        requiredSheets: z.number().nonnegative().optional(),
+        quantity: z.number().positive(),
+        status: z.enum([
+          'pending',
+          'approved',
+          'montage',
+          'printing',
+          'finishing',
+          'completed',
+          'shipped',
+          'delivered',
+        ]),
+        description: z.string().max(500).optional(),
+      })
+    ),
     defaultValues: {
-      companyId: '',
-      productIds: [],
-      paperId: '',
-      quantity: '',
-      requiredSheets: '',
-      status: 'pending',
-      description: '',
-      ...defaultValues,
+      companyId: order?.companyId ?? '',
+      productIds: order?.productIds?.map(String) ?? [],
+      paperId: order?.paperId ?? '',
+      materialIds: order?.materialIds?.map(String) ?? [],
+      requiredSheets: order?.requiredSheets ?? 0,
+      quantity: order?.quantity ?? 1,
+      status: order?.status ?? 'pending',
+      description: order?.description ?? '',
     },
   });
 
-  const [companies, setCompanies] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [papers, setPapers] = useState([]);
-  const [materials, setMaterials] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const handleFormSubmit = (data) => {
-    onSubmit(data);
-  };
+  const [companyOptions, setCompanyOptions] = useState([]);
+  const [productOptions, setProductOptions] = useState([]);
+  const [paperOptions, setPaperOptions] = useState([]);
+  const [materialOptions, setMaterialOptions] = useState([]);
 
   useEffect(() => {
-    const loadReferenceData = async () => {
-      try {
-        setLoading(true);
-        // Fetch companies
-        const companiesResponse = await companyService.getAll();
-        setCompanies(companiesResponse);
-
-        // Fetch products
-        const productsResponse = await productService.getAll();
-        setProducts(productsResponse);
-
-        // Fetch papers
-        const papersResponse = await paperService.getAll();
-        setPapers(papersResponse);
-
-        // Fetch materials
-        const materialsResponse = await materialService.getAll();
-        setMaterials(materialsResponse);
-      } catch (error) {
-        console.error('Failed to load reference data:', error);
-      } finally {
-        setLoading(false);
-      }
+    const loadCompanies = async () => {
+      const data = await companyService.getAll();
+      setCompanyOptions(
+        data.map((company) => ({
+          value: company.id,
+          label: company.name,
+        }))
+      );
     };
-
-    loadReferenceData();
+    loadCompanies();
   }, []);
 
-  // Prepare options for selects
-  const companyOptions = companies.map((company) => ({
-    value: company.id,
-    label: company.name,
-  }));
+  useEffect(() => {
+    const loadProducts = async () => {
+      const data = await productService.getAll();
+      setProductOptions(
+        data.map((product) => ({
+          value: product.id,
+          label: product.name,
+        }))
+      );
+    };
+    loadProducts();
+  }, []);
 
-  const productOptions = products.map((product) => ({
-    value: product.id,
-    label: product.name,
-  }));
+  useEffect(() => {
+    const loadPapers = async () => {
+      const data = await paperService.getAll();
+      setPaperOptions(
+        data.map((paper) => ({
+          value: paper.id,
+          label: paper.name,
+        }))
+      );
+    };
+    loadPapers();
+  }, []);
 
-  const paperOptions = papers.map((paper) => ({
-    value: paper.id,
-    label: paper.name,
-  }));
+  useEffect(() => {
+    const loadMaterials = async () => {
+      const data = await materialService.getAll();
+      setMaterialOptions(
+        data.map((material) => ({
+          value: material.id,
+          label: material.name,
+        }))
+      );
+    };
+    loadMaterials();
+  }, []);
 
-  const materialOptions = materials.map((material) => ({
-    value: material.id,
-    label: material.name,
-  }));
-
-  if (loading) {
-    // Return a simplified form or show loading state
-    // For now, we'll return the form with empty options
-  }
+  const handleFormSubmit = (data) => {
+    const status = statusMap[data.status] || 'pending';
+    const productIds = data.productIds.map(Number);
+    const materialIds = data.materialIds.map(Number);
+    onSubmit({
+      ...data,
+      status,
+      productIds,
+      materialIds,
+    });
+  };
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
@@ -151,7 +181,8 @@ export default function ProductionOrderForm({
           <Controller
             control={control}
             name="companyId"
-            render={({ field }) => (
+          >
+            {({ field }) => (
               <Select
                 id="companyId"
                 value={field.value ? String(field.value) : ''}
@@ -166,17 +197,19 @@ export default function ProductionOrderForm({
                 ))}
               </Select>
             )}
-          />
+          </Controller>
           {errors.companyId && (
             <span className="text-sm text-red-600">{errors.companyId.message}</span>
           )}
         </div>
+
         <div>
           <Label htmlFor="paperId">{ar.common.paper}</Label>
           <Controller
             control={control}
             name="paperId"
-            render(({ field }) => (
+          >
+            {({ field }) => (
               <Select
                 id="paperId"
                 value={field.value ? String(field.value) : ''}
@@ -190,21 +223,20 @@ export default function ProductionOrderForm({
                   </option>
                 ))}
               </Select>
-            ))}
-          />
+            )}
+          </Controller>
           {errors.paperId && (
             <span className="text-sm text-red-600">{errors.paperId.message}</span>
           )}
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
           <Label htmlFor="productIds">{ar.common.product}</Label>
           <Controller
             control={control}
             name="productIds"
-            render(({ field }) => (
+          >
+            {({ field }) => (
               <Select
                 id="productIds"
                 multiple
@@ -219,18 +251,20 @@ export default function ProductionOrderForm({
                   </option>
                 ))}
               </Select>
-            ))}
-          />
+            )}
+          </Controller>
           {errors.productIds && (
             <span className="text-sm text-red-600">{errors.productIds.message}</span>
           )}
         </div>
+
         <div>
           <Label htmlFor="materialIds">{ar.common.material}</Label>
           <Controller
             control={control}
             name="materialIds"
-            render(({ field }) => (
+          >
+            {({ field }) => (
               <Select
                 id="materialIds"
                 multiple
@@ -245,8 +279,8 @@ export default function ProductionOrderForm({
                   </option>
                 ))}
               </Select>
-            ))}
-          />
+            )}
+          </Controller>
           {errors.materialIds && (
             <span className="text-sm text-red-600">{errors.materialIds.message}</span>
           )}
@@ -286,7 +320,8 @@ export default function ProductionOrderForm({
           <Controller
             control={control}
             name="status"
-            render(({ field }) => (
+          >
+            {({ field }) => (
               <Select
                 id="status"
                 value={field.value}
@@ -301,7 +336,7 @@ export default function ProductionOrderForm({
                 ))}
               </Select>
             )}
-          )}
+          </Controller>
           {errors.status && (
             <span className="text-sm text-red-600">{errors.status.message}</span>
           )}

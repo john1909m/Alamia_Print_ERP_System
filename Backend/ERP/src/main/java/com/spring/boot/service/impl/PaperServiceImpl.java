@@ -27,7 +27,6 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     public PaperDto create(PaperDto paperDto) {
-        log.info("Creating new paper with name: {}", paperDto.getName());
         Paper paper = paperMapper.toEntity(paperDto);
         Paper savedPaper = paperRepository.save(paper);
         log.info("Paper created successfully with id: {}", savedPaper.getId());

@@ -1,82 +1,66 @@
-/** @jsxImportSource react */
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { FormField } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { ar } from '@/constants/ar'
 
-// InkDto fields: inkType (string with max length), stock (no name field as per backend DTO)
 const inkSchema = z.object({
-  inkType: z.string().max(500, { message: 'Ink type must not exceed 500 characters' }).optional(),
-  stock: z
-    .preprocess((val) => {
-      if (val === '' || val === null || val === undefined) {
-        return undefined
-      }
-      const num = parseInt(val)
-      return isNaN(num) ? undefined : num
-    })
-    .refine((val) => {
-      return val === undefined || val >= 0
-    }, {
-      message: 'Stock must be a non-negative integer',
-    })
+  inkType: z.string().max(500).optional(),
+  stock: z.coerce.number().min(0, 'المخزون يجب أن يكون أكبر من أو يساوي 0').default(0),
+  notes: z.string().max(500).optional(),
 })
 
-const InkForm = ({ onSubmit, defaultValues }) => {
+const InkForm = ({ onSubmit, defaultValues, onCancel }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: zodResolver(inkSchema),
     defaultValues: defaultValues || {
       inkType: '',
-      stock: '',
+      stock: 0,
+      notes: '',
     },
   })
 
   const handleSubmitWithValidation = async (data) => {
     try {
       await onSubmit(data)
+      reset()
     } catch (error) {
       console.error('Failed to submit ink form:', error)
-      throw error
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(handleSubmitWithValidation)} className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <FormField label={ar.materials.inkType}>
-            <Input
-              {...register('inkType')}
-              placeholder={ar.materials.inkTypePlaceholder || 'Enter ink type'}
-            />
-            {errors.inkType && <span className="text-sm text-destructive">{errors.inkType.message}</span>}
-          </FormField>
-        </div>
+    <form onSubmit={handleSubmit(handleSubmitWithValidation)} className="space-y-4">
+      <FormField label="نوع الحبر">
+        <Input {...register('inkType')} placeholder="أدخل نوع الحبر (مثال: سماوي, أرجواني)" />
+        {errors.inkType && <span className="text-sm text-red-500">{errors.inkType.message}</span>}
+      </FormField>
 
-        <div>
-          <FormField label={ar.materials.stock}>
-            <Input
-              type="number"
-              {...register('stock')}
-              placeholder={ar.materials.stockPlaceholder || 'Enter stock quantity'}
-              min="0"
-            />
-            {errors.stock && <span className="text-sm text-destructive">{errors.stock.message}</span>}
-          </FormField>
-        </div>
+      <FormField label="المخزون">
+        <Input type="number" {...register('stock')} placeholder="أدخل المخزون" min="0" />
+        {errors.stock && <span className="text-sm text-red-500">{errors.stock.message}</span>}
+      </FormField>
 
-        <div className="col-span-2">
-          <Button type="submit" className="w-full">
-            Save
+      <FormField label="ملاحظات">
+        <Input {...register('notes')} placeholder="أدخل ملاحظات (اختياري)" />
+        {errors.notes && <span className="text-sm text-red-500">{errors.notes.message}</span>}
+      </FormField>
+
+      <div className="flex gap-2">
+        <Button type="submit" className="flex-1">
+          {defaultValues?.id ? 'تحديث' : 'حفظ'}
+        </Button>
+        {onCancel && (
+          <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
+            إلغاء
           </Button>
-        </div>
+        )}
       </div>
     </form>
   )

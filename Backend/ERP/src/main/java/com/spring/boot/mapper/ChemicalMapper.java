@@ -11,10 +11,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ChemicalMapper extends BaseMapper {
 
-    @Mapping(source = "material.id", target = "material_id")
-    @Mapping(source = "material.name", target = "name")
+    @Mapping(source = "material.id", target = "materialId")
     ChemicalDto toDto(Chemical entity);
 
     @Mapping(target = "material", ignore = true)
+    @Mapping(target = "material.id", source = "materialId")
     Chemical toEntity(ChemicalDto dto);
 }

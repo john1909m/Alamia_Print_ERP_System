@@ -3,14 +3,13 @@ import { API_ENDPOINTS } from '@/services/api'
 
 const mapPaper = (item = {}) => {
   return {
-    ...item,
     id: item.id,
-    material_id: item.material_id,
-    name: item.name || '-',
-    type: item.type || '',
+    materialId: item.materialId || item.material_id,
+    width: item.width,
+    height: item.height,
     weight: item.weight,
-    brightness: item.brightness,
-    color: item.color,
+    stock: item.stock || 0,
+    notes: item.notes || '',
   }
 }
 
@@ -26,12 +25,29 @@ export const paperService = {
   },
 
   create: async (data) => {
-    const response = await apiClient.post(API_ENDPOINTS.papers, data)
+    // تأكد من إرسال البيانات بالشكل الصحيح للـ API
+    const payload = {
+      materialId: data.materialId,
+      width: data.width,
+      height: data.height,
+      weight: data.weight,
+      stock: data.stock || 0,
+      notes: data.notes || '',
+    }
+    const response = await apiClient.post(API_ENDPOINTS.papers, payload)
     return mapPaper(normalizeEntityResponse(response.data))
   },
 
   update: async (id, data) => {
-    const response = await apiClient.put(`${API_ENDPOINTS.papers}/${id}`, data)
+    const payload = {
+      materialId: data.materialId,
+      width: data.width,
+      height: data.height,
+      weight: data.weight,
+      stock: data.stock || 0,
+      notes: data.notes || '',
+    }
+    const response = await apiClient.put(`${API_ENDPOINTS.papers}/${id}`, payload)
     return mapPaper(normalizeEntityResponse(response.data))
   },
 

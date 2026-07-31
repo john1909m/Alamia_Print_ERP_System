@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class InkDto {
     private Long id;
 
-    private Long material_id;
+    private Long materialId;
 
 
     @Size(max = 500, message = "Ink types must not exceed 500 characters")

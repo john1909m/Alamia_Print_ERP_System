@@ -225,7 +225,7 @@ export const ar = {
     chemicalTypes: 'أنواع الكيماويات',
     minStock: 'الحد الأدنى للمخزون',
     currentStock: 'المخزون الحالي',
-    description: 'الوصف',
+    // description: 'الوصف',
     descriptionPlaceholder: 'وصف المادة (اختياري)',
     filterType: 'تصفية حسب النوع',
     filterStatus: 'تصفية حسب الحالة',

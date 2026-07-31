@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class PaperDto {
     private Long id;
 
-    private Long material_id;
+    private Long materialId;
 
 
     private List<ProductionOrderDto> orders;

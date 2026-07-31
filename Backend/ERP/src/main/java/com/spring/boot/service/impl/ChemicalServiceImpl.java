@@ -27,7 +27,6 @@ public class ChemicalServiceImpl implements ChemicalService {
 
     @Override
     public ChemicalDto create(ChemicalDto chemicalDto) {
-        log.info("Creating new chemical with name: {}", chemicalDto.getName());
         Chemical chemical = chemicalMapper.toEntity(chemicalDto);
         Chemical savedChemical = chemicalRepository.save(chemical);
         log.info("Chemical created successfully with id: {}", savedChemical.getId());

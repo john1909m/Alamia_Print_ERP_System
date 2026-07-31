@@ -1,9 +1,6 @@
-import { forwardRef, useEffect, useImperativeHandle } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/label'
 import {
   Select,
@@ -12,136 +9,120 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Controller } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { ar } from '@/constants/ar'
-import { MATERIAL_TYPES, MATERIAL_UNITS } from '@/features/materials/utils/constants'
 
-// Validation schema - only MaterialDto fields (stock removed as per requirement)
 const materialSchema = z.object({
-  name: z.string().min(2, { message: ar.shared.validation.nameMin }),
-  type: z.enum([...MATERIAL_TYPES.map(t => t.value)]),
-  unit: z.enum([...MATERIAL_UNITS.map(u => u.value)]),
-  // Removed stock field
-  notes: z.string().max(500, { message: 'Notes must not exceed 500 characters' }).optional()
+  name: z.string().min(2, { message: ar.shared?.validation?.nameMin || 'Name must be at least 2 characters' }),
+  type: z.enum(['PAPER', 'INK', 'CHEMICAL', 'ZINC', 'PLATE', 'GLUE', 'OTHER']),
+  unit: z.enum(['SHEET', 'KG', 'LITER', 'PIECE', 'METER', 'ROLL']),
+  notes: z.string().max(500).optional()
 })
 
-const formSchema = materialSchema
-
-const defaultValues = {
-  name: '',
-  type: 'PAPER',
-  unit: 'KG',
-  // Removed stock
-  notes: '',
-}
-
-export const MaterialForm = forwardRef(function MaterialForm(
-  { defaultValues: initialData, onSubmit },
-  ref
-) {
+const MaterialForm = ({ onSubmit, defaultValues, onCancel }) => {
   const {
     register,
     control,
     handleSubmit,
-    reset,
     formState: { errors },
-    setValue,
+    reset,
   } = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: { ...defaultValues, ...(initialData || {}) },
-    mode: 'onBlur',
+    resolver: zodResolver(materialSchema),
+    defaultValues: defaultValues || {
+      name: '',
+      type: 'PAPER',
+      unit: 'KG',
+      notes: '',
+    },
   })
 
-  useEffect(() => {
-    reset({ ...defaultValues, ...(initialData || {}) })
-  }, [initialData, reset])
-
-  useImperativeHandle(ref, () => ({
-    submit: () => handleSubmit(onSubmit)(),
-  }), [handleSubmit, onSubmit])
-
-  const handleSubmitSimple = async (data) => {
-    // Submit only the material data (no transformation needed)
+  const handleSubmitWithValidation = async (data) => {
     try {
       await onSubmit(data)
+      reset()
     } catch (error) {
-      console.error('Failed to submit form:', error)
-      throw error
+      console.error('Failed to submit material form:', error)
     }
   }
 
   return (
-    <form onSubmit={handleSubmitSimple} className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="col-span-2">
-          <FormField label={ar.materials.name}>
-            <Input
-              {...register('name')}
-              placeholder={ar.materials.namePlaceholder}
-            />
-            {errors.name && <span className="text-sm text-destructive">{errors.name.message}</span>}
-          </FormField>
-        </div>
+    <form onSubmit={handleSubmit(handleSubmitWithValidation)} className="space-y-4">
+      <div className="grid gap-4">
+        <FormField label={ar.materials?.name || 'Name'}>
+          <Input {...register('name')} placeholder="Enter material name" />
+          {errors.name && <span className="text-sm text-red-500">{errors.name.message}</span>}
+        </FormField>
 
-        <div>
-          <FormField label={ar.materials.type}>
+        <div className="grid grid-cols-2 gap-4">
+          <FormField label={ar.materials?.type || 'Type'}>
             <Controller
               name="type"
               control={control}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder={ar.materials.selectType} />
+                    <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {MATERIAL_TYPES.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>
-                        {t.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="PAPER">Paper</SelectItem>
+                    <SelectItem value="INK">Ink</SelectItem>
+                    <SelectItem value="CHEMICAL">Chemical</SelectItem>
+                    <SelectItem value="ZINC">Zinc</SelectItem>
+                    <SelectItem value="PLATE">Plate</SelectItem>
+                    <SelectItem value="GLUE">Glue</SelectItem>
+                    <SelectItem value="OTHER">Other</SelectItem>
                   </SelectContent>
                 </Select>
               )}
             />
-            {errors.type && <span className="text-sm text-destructive">{errors.type.message}</span>}
+            {errors.type && <span className="text-sm text-red-500">{errors.type.message}</span>}
           </FormField>
-        </div>
 
-        <div>
-          <FormField label={ar.materials.unit}>
+          <FormField label={ar.materials?.unit || 'Unit'}>
             <Controller
               name="unit"
               control={control}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder={ar.materials.unitPlaceholder} />
+                    <SelectValue placeholder="Select unit" />
                   </SelectTrigger>
                   <SelectContent>
-                    {MATERIAL_UNITS.map((u) => (
-                      <SelectItem key={u.value} value={u.value}>
-                        {u.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="SHEET">Sheet</SelectItem>
+                    <SelectItem value="KG">KG</SelectItem>
+                    <SelectItem value="LITER">Liter</SelectItem>
+                    <SelectItem value="PIECE">Piece</SelectItem>
+                    <SelectItem value="METER">Meter</SelectItem>
+                    <SelectItem value="ROLL">Roll</SelectItem>
                   </SelectContent>
                 </Select>
               )}
             />
-            {errors.unit && <span className="text-sm text-destructive">{errors.unit.message}</span>}
+            {errors.unit && <span className="text-sm text-red-500">{errors.unit.message}</span>}
           </FormField>
         </div>
 
-        {/* Stock field removed */}
+        <FormField label={ar.materials?.description || 'Notes'}>
+          <Textarea {...register('notes')} placeholder="Enter notes (optional)" rows={3} />
+          {errors.notes && <span className="text-sm text-red-500">{errors.notes.message}</span>}
+        </FormField>
 
-        <div className="col-span-2">
-          <FormField label={ar.materials.description}>
-            <Textarea
-              {...register('notes')}
-              placeholder={ar.materials.descriptionPlaceholder}
-            />
-            {errors.notes && <span className="text-sm text-destructive">{errors.notes.message}</span>}
-          </FormField>
+        <div className="flex gap-2 pt-2">
+          <Button type="submit" className="flex-1">
+            {defaultValues?.id ? 'Update' : 'Save'}
+          </Button>
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
+              Cancel
+            </Button>
+          )}
         </div>
       </div>
     </form>
   )
-})
+}
+
+export default MaterialForm

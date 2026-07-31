@@ -27,7 +27,6 @@ public class InkServiceImpl implements InkService {
 
     @Override
     public InkDto create(InkDto inkDto) {
-        log.info("Creating new ink with name: {}", inkDto.getName());
         Ink ink = inkMapper.toEntity(inkDto);
         Ink savedInk = inkRepository.save(ink);
         log.info("Ink created successfully with id: {}", savedInk.getId());
