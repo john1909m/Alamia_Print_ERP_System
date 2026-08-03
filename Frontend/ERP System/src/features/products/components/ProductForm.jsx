@@ -147,6 +147,32 @@ export const ProductForm = forwardRef(function ProductForm(
         />
       </FormField>
 
+      {/* ✅ عرض المنتج - جديد */}
+      <FormField 
+        label={ar.products?.width || 'Width'} 
+        error={errors.width?.message}
+      >
+        <Input 
+          type="number"
+          step="0.01"
+          {...register('width')} 
+          placeholder={ar.products?.widthPlaceholder || 'Enter width (optional)'} 
+        />
+      </FormField>
+
+      {/* ✅ ارتفاع المنتج - جديد */}
+      <FormField 
+        label={ar.products?.height || 'Height'} 
+        error={errors.height?.message}
+      >
+        <Input 
+          type="number"
+          step="0.01"
+          {...register('height')} 
+          placeholder={ar.products?.heightPlaceholder || 'Enter height (optional)'} 
+        />
+      </FormField>
+
       <FormField 
         label={ar.products?.description || 'Description'} 
         error={errors.description?.message}

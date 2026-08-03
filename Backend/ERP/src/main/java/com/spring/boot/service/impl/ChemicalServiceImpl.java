@@ -3,6 +3,7 @@ package com.spring.boot.service.impl;
 import com.spring.boot.dto.ChemicalDto;
 import com.spring.boot.mapper.ChemicalMapper;
 import com.spring.boot.model.Chemical;
+import com.spring.boot.model.Paper;
 import com.spring.boot.repo.ChemicalRepository;
 import com.spring.boot.service.interfaces.ChemicalService;
 import lombok.RequiredArgsConstructor;
@@ -82,4 +83,40 @@ public class ChemicalServiceImpl implements ChemicalService {
                 chemicals.getTotalElements());
         return chemicals;
     }
+
+    @Override
+    public Void adjustStock(Long id,String operation,Double number) {
+        Chemical existing = chemicalRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Paper not found with id: " + id));
+        if(operation.equals("deduct")){
+            Double stock=existing.getStock();
+            if (stock>=number) {
+                Double newStock=stock-number;
+                existing.setStock(newStock);
+                Chemical updatedPaper = chemicalRepository.save(existing);
+            }
+            else {
+                throw new RuntimeException("low stock");
+            }
+
+        } else if (operation.equals("refund")) {
+            Double stock=existing.getStock();
+            if (stock>=number) {
+                Double newStock=stock+number;
+                existing.setStock(newStock);
+                Chemical updatedPaper = chemicalRepository.save(existing);
+            }
+            else {
+                throw new RuntimeException("low stock");
+            }
+        }
+        else {
+            throw new RuntimeException("wrong operation");
+        }
+
+        return null;
+    }
+
+
+
 }

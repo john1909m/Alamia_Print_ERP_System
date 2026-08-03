@@ -82,4 +82,39 @@ public class InkServiceImpl implements InkService {
                 inks.getTotalElements());
         return inks;
     }
+
+
+    @Override
+    public Void adjustStock(Long id,String operation,Double number) {
+        Ink existing = inkRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Paper not found with id: " + id));
+        if(operation.equals("deduct")){
+            Double stock=existing.getStock();
+            if (stock>=number) {
+                Double newStock=stock-number;
+                existing.setStock(newStock);
+                Ink updatedPaper = inkRepository.save(existing);
+            }
+            else {
+                throw new RuntimeException("low stock");
+            }
+
+        } else if (operation.equals("refund")) {
+            Double stock=existing.getStock();
+            if (stock>=number) {
+                Double newStock=stock-number;
+                existing.setStock(newStock);
+                Ink updatedPaper = inkRepository.save(existing);
+            }
+            else {
+                throw new RuntimeException("low stock");
+            }
+        }
+        else {
+            throw new RuntimeException("wrong operation");
+        }
+
+        return null;
+    }
+
 }

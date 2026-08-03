@@ -116,6 +116,7 @@ const getProductDisplayLabel = (product) => {
   return parts.join(' ') || `منتج ${product.id}`;
 };
 
+// ✅ Schema من غير requiredSheets و numberInMontage
 const productionOrderSchema = z.object({
   companyId: z.coerce.number().positive('الشركة مطلوبة'),
   productId: z.coerce.number().positive('المنتج مطلوب'),
@@ -123,7 +124,6 @@ const productionOrderSchema = z.object({
   quantity: z.coerce.number().positive('الكمية مطلوبة'),
   inkIds: z.array(z.coerce.number()).optional().default([]),
   chemicalIds: z.array(z.coerce.number()).optional().default([]),
-  requiredSheets: z.coerce.number().nonnegative().optional(),
   requiredChemicals: z.coerce.number().nonnegative().optional(),
   requiredInks: z.coerce.number().nonnegative().optional(),
   status: z.enum(PRODUCTION_STATUS).default('SENT_PO'),
@@ -151,7 +151,6 @@ export default function ProductionOrderForm({
       quantity: order?.quantity ?? 1,
       inkIds: order?.inkIds ?? [],
       chemicalIds: order?.chemicalIds ?? [],
-      requiredSheets: order?.requiredSheets ?? 0,
       requiredChemicals: order?.requiredChemicals ?? 0,
       requiredInks: order?.requiredInks ?? 0,
       status: order?.status ?? 'SENT_PO',
@@ -317,7 +316,7 @@ export default function ProductionOrderForm({
           )}
         </div>
 
-        {/* ✅ الأحبار - Select Multiple */}
+        {/* الأحبار */}
         <div>
           <Label className="font-medium">نوع الحبر</Label>
           <Controller
@@ -357,7 +356,7 @@ export default function ProductionOrderForm({
           </div>
         </div>
 
-        {/* ✅ المواد الكيميائية - Select Multiple */}
+        {/* المواد الكيميائية */}
         <div>
           <Label className="font-medium">نوع المادة الكيميائية</Label>
           <Controller
@@ -397,26 +396,7 @@ export default function ProductionOrderForm({
           </div>
         </div>
 
-        {/* الأوراق المطلوبة */}
-        <div>
-          <Label htmlFor="requiredSheets" className="font-medium">
-            عدد الأوراق المطلوبة
-          </Label>
-          <Input
-            id="requiredSheets"
-            type="number"
-            placeholder="أدخل عدد الأوراق المطلوبة"
-            {...register('requiredSheets')}
-            min="0"
-            step="0.01"
-            className="w-full"
-          />
-          {errors.requiredSheets && (
-            <span className="text-sm text-red-600">{errors.requiredSheets.message}</span>
-          )}
-        </div>
-
-        {/* المواد الكيميائية المطلوبة */}
+        {/* ✅ كمية المواد الكيميائية المطلوبة */}
         <div>
           <Label htmlFor="requiredChemicals" className="font-medium">
             كمية المواد الكيميائية المطلوبة
@@ -435,7 +415,7 @@ export default function ProductionOrderForm({
           )}
         </div>
 
-        {/* الأحبار المطلوبة */}
+        {/* ✅ كمية الأحبار المطلوبة */}
         <div>
           <Label htmlFor="requiredInks" className="font-medium">
             كمية الأحبار المطلوبة
@@ -453,6 +433,8 @@ export default function ProductionOrderForm({
             <span className="text-sm text-red-600">{errors.requiredInks.message}</span>
           )}
         </div>
+
+        {/* ✅ تم حذف requiredSheets و numberInMontage */}
 
         {/* الحالة */}
         <div>
@@ -504,7 +486,7 @@ export default function ProductionOrderForm({
 
       <div className="flex gap-2 pt-4 border-t">
         <Button type="submit" className="flex-1" disabled={loading}>
-          {loading ? 'جاري التحميل...' : order?.id ? 'تحديث' : 'حفظ'}
+          {loading ? 'جاري التحميل...' : 'حفظ'}
         </Button>
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel} className="flex-1">

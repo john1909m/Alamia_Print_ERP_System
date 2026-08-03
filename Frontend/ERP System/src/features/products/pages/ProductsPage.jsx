@@ -41,6 +41,8 @@ const columns = [
       </span>
     ),
   },
+  { key: 'width', header: ar.products?.width || 'Width', sortable: true },      // ✅ جديد
+  { key: 'height', header: ar.products?.height || 'Height', sortable: true },   // ✅ جديد
   {
     key: 'status',
     header: ar.common?.status || 'Status',
@@ -56,6 +58,8 @@ function buildProductViewFields(item) {
     { label: ar.products?.productCode || 'Code', value: item.productCode || '-' },
     { label: ar.common?.company || 'Company', value: item.companyName || 'غير محدد' },
     { label: ar.products?.productType || 'Type', value: getProductTypeLabel(item.category) },
+    { label: ar.products?.width || 'Width', value: item.width || '-' },      // ✅ جديد
+    { label: ar.products?.height || 'Height', value: item.height || '-' },
     { label: ar.common?.status || 'Status', value: STATUS_LABELS?.[item.status] || item.status },
     { label: ar.products?.description || 'Description', value: item.description || '-' },
     { label: ar.common?.created || 'Created', value: item.createdAt || '-' },

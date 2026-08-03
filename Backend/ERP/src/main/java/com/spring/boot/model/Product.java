@@ -26,6 +26,10 @@ public class Product extends BaseEntity {
 
     private String notes;
 
+    private Double width;
+
+    private Double height;
+
 
     @ManyToMany
     @JoinTable(

@@ -1,16 +1,21 @@
+// src/features/productionOrders/services/productionOrderService.js
 import { apiClient, normalizePageResponse, normalizeEntityResponse } from '@/services/api'
 import { API_ENDPOINTS } from '@/services/api'
 
 const mapProductionOrder = (item = {}) => {
+  console.log('📦 Mapping production order:', item)
   return {
     id: item.id,
     companyId: item.companyId || item.company_id || null,
     productId: item.productId || item.product_id || null,
     quantity: item.quantity || 0,
     paperId: item.paperId || item.paper_id || null,
-    inkIds: item.inkIds || item.ink_ids || [],
-    chemicalIds: item.chemicalIds || item.chemical_ids || [],
+    inkIds: Array.isArray(item.inkIds) ? item.inkIds : 
+            Array.isArray(item.ink_ids) ? item.ink_ids : [],
+    chemicalIds: Array.isArray(item.chemicalIds) ? item.chemicalIds : 
+                 Array.isArray(item.chemical_ids) ? item.chemical_ids : [],
     requiredSheets: item.requiredSheets || item.required_sheets || 0,
+    numberInMontage: item.numberInMontage || item.number_in_montage || 1,
     requiredChemicals: item.requiredChemicals || item.required_chemicals || 0,
     requiredInks: item.requiredInks || item.required_inks || 0,
     status: item.status || 'SENT_PO',
@@ -54,9 +59,10 @@ export const productionOrderService = {
         productId: data.productId,
         quantity: data.quantity,
         paperId: data.paperId,
-        inkIds: data.inkIds || [],
-        chemicalIds: data.chemicalIds || [],
+        inkIds: Array.isArray(data.inkIds) ? data.inkIds : [],
+        chemicalIds: Array.isArray(data.chemicalIds) ? data.chemicalIds : [],
         requiredSheets: data.requiredSheets || 0,
+        numberInMontage: data.numberInMontage || 1,
         requiredChemicals: data.requiredChemicals || 0,
         requiredInks: data.requiredInks || 0,
         status: data.status || 'SENT_PO',
@@ -81,9 +87,10 @@ export const productionOrderService = {
         productId: data.productId,
         quantity: data.quantity,
         paperId: data.paperId,
-        inkIds: data.inkIds || [],
-        chemicalIds: data.chemicalIds || [],
+        inkIds: Array.isArray(data.inkIds) ? data.inkIds : [],
+        chemicalIds: Array.isArray(data.chemicalIds) ? data.chemicalIds : [],
         requiredSheets: data.requiredSheets || 0,
+        numberInMontage: data.numberInMontage || 1,
         requiredChemicals: data.requiredChemicals || 0,
         requiredInks: data.requiredInks || 0,
         status: data.status || 'SENT_PO',

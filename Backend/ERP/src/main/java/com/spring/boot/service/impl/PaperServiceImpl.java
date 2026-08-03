@@ -82,4 +82,41 @@ public class PaperServiceImpl implements PaperService {
                 papers.getTotalElements());
         return papers;
     }
+
+    @Override
+    public Void adjustStock(Long id,String operation,Double number) {
+        Paper existing = paperRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Paper not found with id: " + id));
+        if(operation.equals("deduct")){
+            Double stock=existing.getStock();
+            if (stock>=number) {
+                Double newStock=stock-number;
+                existing.setStock(newStock);
+                Paper updatedPaper = paperRepository.save(existing);
+            }
+            else {
+                throw new RuntimeException("low stock");
+            }
+
+        } else if (operation.equals("refund")) {
+            Double stock=existing.getStock();
+            if (stock>=number) {
+                Double newStock=stock-number;
+                existing.setStock(newStock);
+                Paper updatedPaper = paperRepository.save(existing);
+            }
+            else {
+                throw new RuntimeException("low stock");
+            }
+        }
+        else {
+            throw new RuntimeException("wrong operation");
+        }
+
+        return null;
+    }
+
+
+
+
 }

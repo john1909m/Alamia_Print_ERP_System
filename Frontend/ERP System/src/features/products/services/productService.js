@@ -45,6 +45,8 @@ const mapProduct = (item = {}, companies = []) => {
     category: mapProductType(item.type),
     status: item.status || 'active',
     description: item.notes || '',
+    width: item.width || null,      // ✅ جديد
+    height: item.height || null,    // ✅ جديد
     createdAt: item.createdAt || item.created_at || '',
     updatedAt: item.updatedAt || item.updated_at || '',
     orders: item.orders || [],
@@ -55,7 +57,6 @@ export const productService = {
   getAll: async () => {
     console.log('📦 Fetching all products...')
     try {
-      // جلب الـ Companies أولاً
       const companies = await loadCompaniesCache()
       
       const response = await apiClient.get(API_ENDPOINTS.products)
@@ -91,13 +92,14 @@ export const productService = {
         notes: data.description || data.notes || '',
         companyId: data.companyId || data.company_id,
         status: data.status || 'active',
+        width: data.width || null,      // ✅ جديد
+        height: data.height || null,    // ✅ جديد
       }
       console.log('📦 Product payload:', payload)
       
       const response = await apiClient.post(API_ENDPOINTS.products, payload)
       console.log('📦 Create product response:', response.data)
       
-      // إعادة تحميل الـ Cache عشان يضيف الشركة الجديدة لو موجودة
       const companies = await loadCompaniesCache()
       return mapProduct(normalizeEntityResponse(response.data), companies)
     } catch (error) {
@@ -116,6 +118,8 @@ export const productService = {
         notes: data.description || data.notes || '',
         companyId: data.companyId || data.company_id,
         status: data.status || 'active',
+        width: data.width || null,      // ✅ جديد
+        height: data.height || null,    // ✅ جديد
       }
       console.log('📦 Product update payload:', payload)
       

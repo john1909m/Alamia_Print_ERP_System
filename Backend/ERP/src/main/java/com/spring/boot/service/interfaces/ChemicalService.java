@@ -15,4 +15,6 @@ public interface ChemicalService {
     ChemicalDto findById(Long id);
     List<ChemicalDto> findAll();
     Page<ChemicalDto> findAll(Pageable pageable);
+    Void adjustStock(Long id,String operation,Double number);
+
 }

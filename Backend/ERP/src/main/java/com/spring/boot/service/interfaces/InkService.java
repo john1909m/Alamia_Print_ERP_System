@@ -15,4 +15,6 @@ public interface InkService {
     InkDto findById(Long id);
     List<InkDto> findAll();
     Page<InkDto> findAll(Pageable pageable);
+    Void adjustStock(Long id,String operation,Double number);
+
 }

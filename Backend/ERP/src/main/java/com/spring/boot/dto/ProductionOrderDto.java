@@ -43,8 +43,10 @@ public class ProductionOrderDto {
     private List<Long> chemicalIds;
 
 
-    @Positive(message = "Required sheets must be positive")
+//    @Positive(message = "Required sheets must be positive")
     private Double requiredSheets;
+
+    private Double numberInMontage;
 
     @Positive(message = "Required sheets must be positive")
     private Double requiredChemicals;

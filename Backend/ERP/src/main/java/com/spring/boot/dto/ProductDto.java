@@ -37,4 +37,8 @@ public class ProductDto {
     @NotNull(message = "Company is required")
     private Long companyId;
 
+    private Double width;
+
+    private Double height;
+
 }

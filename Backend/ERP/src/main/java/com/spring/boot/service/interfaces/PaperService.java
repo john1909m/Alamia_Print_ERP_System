@@ -15,4 +15,5 @@ public interface PaperService {
     PaperDto findById(Long id);
     List<PaperDto> findAll();
     Page<PaperDto> findAll(Pageable pageable);
+    Void adjustStock(Long id,String operation,Double number);
 }

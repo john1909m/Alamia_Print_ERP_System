@@ -50,6 +50,8 @@ public class ProductionOrder extends BaseEntity{
 
     private Double requiredSheets;
 
+    private Double numberInMontage;
+
     private Double requiredInks;
 
     private Double requiredChemicals;
