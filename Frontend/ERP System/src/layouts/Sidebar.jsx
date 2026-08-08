@@ -6,6 +6,7 @@ import { ar } from '@/constants/ar'
 import { useSidebar } from '@/hooks/useSidebar'
 import { cn } from '@/utils/cn'
 import { Button } from '@/components/ui/button'
+import logo from '@/assets/logo.png'
 
 export function Sidebar() {
   const { isCollapsed, isMobileOpen, isTablet, toggleCollapsed, closeMobile } = useSidebar()
@@ -29,8 +30,8 @@ export function Sidebar() {
       >
         <div className={cn('flex h-16 items-center border-b px-4', isCollapsed && 'justify-center px-2')}>
           <div className="flex items-center gap-2 overflow-hidden">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Printer className="h-4 w-4" />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center ">
+              <img src={logo} alt="company logo" />
             </div>
             {!isCollapsed && (
               <span className="truncate text-sm font-bold text-sidebar-foreground">{APP_NAME}</span>

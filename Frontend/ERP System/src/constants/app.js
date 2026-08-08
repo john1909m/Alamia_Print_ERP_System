@@ -1,5 +1,5 @@
-export const APP_NAME = 'عالمية للطباعة'
-export const APP_TITLE = 'نظام إدارة عالمية للطباعة'
+export const APP_NAME = 'العالمية برنت'
+export const APP_TITLE = 'نظام إدارة العالمية للطباعة'
 export const APP_DESCRIPTION = 'لوحة تحكم داخلية لإدارة الطباعة'
 
 export const DEFAULT_PAGE_SIZE = 10

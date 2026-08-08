@@ -23,10 +23,10 @@ export function Navbar() {
         </Button>
         <div className="flex items-center gap-2 pe-2">
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs">ع</AvatarFallback>
+            <AvatarFallback className="bg-primary text-primary-foreground text-xs">إ</AvatarFallback>
           </Avatar>
           <div className="hidden sm:block">
-            <p className="text-sm font-medium leading-none">{ar.common.admin}</p>
+            <p className="text-sm font-medium leading-none">إميل رمزي</p>
             <p className="text-xs text-muted-foreground">{ar.common.manager}</p>
           </div>
         </div>
@@ -34,8 +34,8 @@ export function Navbar() {
 
       <div className="flex items-center gap-3">
         <div className="relative hidden md:block">
-          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder={ar.common.search} className="w-64 ps-9" />
+          {/* <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder={ar.common.search} className="w-64 ps-9" /> */}
         </div>
         {isTablet && (
           <Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)}>
