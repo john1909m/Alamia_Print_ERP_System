@@ -1,4 +1,4 @@
-// src/services/api.js
+﻿// src/services/api.js
 import axios from 'axios'
 import { APP_NAME } from '@/constants/app'
 
@@ -12,24 +12,16 @@ export const apiClient = axios.create({
   withCredentials: true,
 })
 
-// Interceptor للـ Request - إضافة الـ Token
+// Interceptor for Request
 apiClient.interceptors.request.use(
   (config) => {
-    // جلب الـ Token من localStorage
-    const token = localStorage.getItem('access_token') || localStorage.getItem('token')
-    
-    // Log للـ Request عشان تتابع في Console
-    console.log('🚀 API Request:', {
+    // Log API Request
+    console.log('🔐 API Request:', {
       method: config.method?.toUpperCase(),
       url: `${config.baseURL}${config.url}`,
       data: config.data,
       headers: config.headers,
-      token: token ? '✅ موجود' : '❌ غير موجود',
     })
-    
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
     
     return config
   },
@@ -39,10 +31,10 @@ apiClient.interceptors.request.use(
   }
 )
 
-// Interceptor للـ Response
+// Interceptor for Response
 apiClient.interceptors.response.use(
   (response) => {
-    // Log للـ Response
+    // Log API Response
     console.log('✅ API Response:', {
       status: response.status,
       url: response.config.url,
@@ -55,7 +47,7 @@ apiClient.interceptors.response.use(
     const data = error?.response?.data
     const message = getErrorMessage(status, data)
     
-    // Log للـ Error
+    // Log API Error
     console.error('❌ API Error:', {
       status: status,
       message: message,
@@ -63,13 +55,15 @@ apiClient.interceptors.response.use(
       config: error?.config,
     })
     
-    // لو الـ Token منتهي
+    // If token expired or invalid, redirect to login
     if (status === 401) {
-      console.warn('⚠️ Token expired or invalid, redirecting to login...')
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('token')
-      // لو عايز تعمل Redirect للـ Login
-      // window.location.href = '/login'
+      console.warn('🔒 Token expired or invalid, redirecting to login...')
+      // Avoid redirecting on login requests
+      if (!error.config.url?.includes('/auth/login')) {
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login'
+        }
+      }
     }
     
     const normalizedError = new Error(message)
@@ -79,23 +73,20 @@ apiClient.interceptors.response.use(
   }
 )
 
-// دوال مساعدة لتطبيع البيانات
+// Utility functions for normalizing responses
 export const normalizeEntityResponse = (payload) => {
   console.log('📦 Normalizing entity:', payload)
   
   if (!payload) return null
   
-  // لو كانت فيها data
   if (payload.data) {
     return payload.data
   }
   
-  // لو كانت صفحة وفيها content
   if (payload?.content && Array.isArray(payload.content)) {
     return payload.content[0] || null
   }
   
-  // لو كانت object عادي
   if (typeof payload === 'object' && !Array.isArray(payload)) {
     return payload
   }
@@ -104,31 +95,26 @@ export const normalizeEntityResponse = (payload) => {
 }
 
 export const normalizePageResponse = (payload) => {
-  console.log('📦 Normalizing page:', payload)
+  console.log('📄 Normalizing page:', payload)
   
   if (!payload) return []
   
-  // لو كانت Array
   if (Array.isArray(payload)) {
     return payload
   }
   
-  // لو كانت صفحة من Spring Boot (Page<T>)
   if (payload?.content && Array.isArray(payload.content)) {
     return payload.content
   }
   
-  // لو كانت فيها data.content (زي response.data.content)
   if (payload?.data?.content && Array.isArray(payload.data.content)) {
     return payload.data.content
   }
   
-  // لو فيها items
   if (payload?.items && Array.isArray(payload.items)) {
     return payload.items
   }
   
-  // لو كانت object واحد
   if (typeof payload === 'object' && !Array.isArray(payload)) {
     return [payload]
   }
@@ -137,17 +123,15 @@ export const normalizePageResponse = (payload) => {
 }
 
 function getErrorMessage(status, data) {
-  // رسائل الخطأ الافتراضية
   const messages = {
-    400: 'خطأ في الطلب - تأكد من صحة البيانات',
-    401: 'غير مصرح به - يرجى تسجيل الدخول مرة أخرى',
-    403: 'غير مسموح بالوصول - ليس لديك صلاحية',
-    404: 'غير موجود - العنصر المطلوب غير موجود',
-    409: 'تضارب في البيانات - هذا العنصر موجود بالفعل',
-    500: 'خطأ داخلي في الخادم - يرجى المحاولة لاحقاً',
+    400: 'Bad request - Please check the input data',
+    401: 'Unauthorized - Please log in again',
+    403: 'Forbidden - You do not have permission to access this resource',
+    404: 'Not found - The requested resource could not be found',
+    409: 'Conflict - The resource already exists',
+    500: 'Internal server error - Please try again later',
   }
 
-  // لو في رسالة من الـ Response
   if (data) {
     if (data.message) return data.message
     if (data.error) return data.error
@@ -155,36 +139,33 @@ function getErrorMessage(status, data) {
     if (data.msg) return data.msg
   }
 
-  // رسالة افتراضية حسب الـ Status
-  return messages[status] || `حدث خطأ غير متوقع (${status})`
+  return messages[status] || `Error ${status}`
 }
 
-// الـ Endpoints
+// API Endpoints
 export const API_ENDPOINTS = {
-  // Auth
-  auth: '/auth',
-  login: '/auth/login',
-  register: '/auth/register',
-  logout: '/auth/logout',
-  me: '/auth/me',
-  
-  // Materials
-  materials: '/materials',
-  papers: '/papers',
-  inks: '/inks',
-  chemicals: '/chemicals',
-  variants: '/variants',
-  
-  // Others
-  companies: '/companies',
-  suppliers: '/suppliers',
-  inventory: '/inventory',
-  products: '/products',
-  purchases: '/purchases',
-  productionOrders: '/production-orders',
-  reports: '/reports',
-  dashboard: '/dashboard',
-  settings: '/settings',
+// Auth
+auth: '/auth',
+login: '/auth/login',
+register: '/auth/register',
+logout: '/auth/logout',
+me: '/auth/me',
+// Materials
+materials: '/materials',
+papers: '/papers',
+inks: '/inks',
+chemicals: '/chemicals',
+variants: '/variants',
+// Others
+companies: '/companies',
+suppliers: '/suppliers',
+inventory: '/inventory',
+products: '/products',
+purchases: '/purchases',
+productionOrders: '/production-orders',
+reports: '/reports',
+dashboard: '/dashboard',
+settings: '/settings',
 }
 
 export { APP_NAME }

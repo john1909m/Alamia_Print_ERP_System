@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LoginResponseVM {
 
-//    String token;
+    String token;
     private UserDto user;
 
 }

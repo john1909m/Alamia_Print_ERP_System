@@ -1,15 +1,27 @@
+﻿// src/layouts/Sidebar.jsx
 import { NavLink } from 'react-router-dom'
 import { ChevronRight, Printer } from 'lucide-react'
 import { NAV_ITEMS } from '@/constants/navigation'
 import { APP_NAME } from '@/constants/app'
 import { ar } from '@/constants/ar'
 import { useSidebar } from '@/hooks/useSidebar'
+import { useAuth } from '@/context/AuthContext'
 import { cn } from '@/utils/cn'
 import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import logo from '@/assets/logo.png'
 
 export function Sidebar() {
   const { isCollapsed, isMobileOpen, isTablet, toggleCollapsed, closeMobile } = useSidebar()
+  const { user } = useAuth()
+
+  const getInitials = (name) => {
+    if (!name) return 'Ø¥'
+    return name
+      .match(/\b\w/g)
+      ?.join('')
+      .toUpperCase() ?? 'Ø¥'
+  }
 
   return (
     <>
@@ -73,6 +85,21 @@ export function Sidebar() {
               <ChevronRight className={cn('h-4 w-4 transition-transform', isCollapsed && 'rotate-180')} />
               {!isCollapsed && <span>{ar.common.collapse}</span>}
             </Button>
+          </div>
+        )}
+
+        {/* User info in sidebar for non-tablet view */}
+        {!isTablet && !isCollapsed && user && (
+          <div className="mt-6 pt-4 border-t">
+            <Avatar className="h-10 w-10 mb-2">
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {getInitials(user.name)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="text-center space-y-1">
+              <p className="text-sm font-medium">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+            </div>
           </div>
         )}
       </aside>
