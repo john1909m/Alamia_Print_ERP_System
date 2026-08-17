@@ -17,7 +17,7 @@ export function AvatarImage({ className, ...props }) {
 export function AvatarFallback({ className, ...props }) {
   return (
     <AvatarPrimitive.Fallback
-      className={cn('flex h-full w-full items-center justify-center rounded-full bg-muted', className)}
+      className={cn('flex h-full w-full items-center justify-center rounded-full bg-muted/50', className)}
       {...props}
     />
   )

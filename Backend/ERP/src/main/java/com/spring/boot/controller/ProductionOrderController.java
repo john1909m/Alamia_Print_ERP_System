@@ -19,10 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
-/**
- * REST Controller for ProductionOrder entity.
- * Provides CRUD operations for Production Order management.
- */
+
 @RestController
 @RequestMapping("/api/production-orders")
 @Tag(name = "Production Orders", description = "Production order management endpoints")

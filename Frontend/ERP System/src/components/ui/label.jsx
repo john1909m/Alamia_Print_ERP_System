@@ -15,7 +15,7 @@ export function Label({ className, ...props }) {
 
 export function FormField({ label, error, children, className, required }) {
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn('space-y-3', className)}>
       {label && (
         <Label>
           {label}

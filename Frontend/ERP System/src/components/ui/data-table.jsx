@@ -110,12 +110,12 @@ export function DataTable({
             <div className={cn('overflow-x-auto', stickyHeader && 'max-h-[520px] overflow-y-auto')}>
               <table className="w-full text-sm">
                 <thead className={cn(stickyHeader && 'sticky top-0 z-10')}>
-                  <tr className="border-b bg-muted/50">
+                  <tr className="border-b bg-muted/100">
                     {columns.map((col) => (
                       <th
                         key={col.key}
                         className={cn(
-                          'px-4 py-3 text-start font-medium text-muted-foreground',
+                          'px-4 py-3.5 text-start font-medium text-foreground/80',
                           col.sortable && 'cursor-pointer select-none hover:text-foreground',
                           col.className,
                         )}
@@ -131,7 +131,7 @@ export function DataTable({
                 </thead>
                 <tbody>
                   {paginatedData.map((row, rowIndex) => (
-                    <tr key={row.id ?? rowIndex} className="border-b transition-colors hover:bg-muted/30">
+                    <tr key={row.id ?? rowIndex} className="border-b transition-colors hover:bg-muted/40">
                       {columns.map((col) => (
                         <td key={col.key} className={cn('px-4 py-3', col.className)}>
                           {col.render ? col.render(row) : row[col.key]}

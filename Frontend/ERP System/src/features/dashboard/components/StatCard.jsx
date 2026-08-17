@@ -4,7 +4,7 @@ export function StatCard({ title, value, icon: Icon, className }) {
   return (
     <div
       className={cn(
-        'rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md',
+        'rounded-xl border bg-card p-5 shadow-sm transition-shadow duration-200 hover:shadow-md hover:-translate-y-0.5',
         className,
       )}
     >
@@ -14,8 +14,8 @@ export function StatCard({ title, value, icon: Icon, className }) {
           <p className="mt-2 text-2xl font-bold tracking-tight">{value}</p>
         </div>
         {Icon && (
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-            <Icon className="h-4 w-4 text-foreground/70" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted/80">
+            <Icon className="h-4 w-4 text-foreground/60" />
           </div>
         )}
       </div>

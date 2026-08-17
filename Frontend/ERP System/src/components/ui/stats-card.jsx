@@ -6,23 +6,28 @@ export function StatsCard({ title, value, change, changeType, icon: Icon, classN
   const isNegative = changeType === 'negative'
 
   return (
-    <div className={cn('rounded-lg border bg-card p-6 shadow-sm', className)}>
+    <div
+      className={cn(
+        'rounded-xl border bg-card p-6 shadow-sm transition-shadow duration-200 hover:shadow-md hover:-translate-y-0.5',
+        className,
+      )}
+    >
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-muted-foreground">{title}</p>
         {Icon && (
-          <div className="rounded-md bg-primary/10 p-2">
-            <Icon className="h-4 w-4 text-primary" />
+          <div className="rounded-md bg-primary/80 p-2">
+            <Icon className="h-4 w-4 text-primary-foreground" />
           </div>
         )}
       </div>
-      <div className="mt-2">
-        <p className="text-2xl font-bold">{value}</p>
+      <div className="mt-3">
+        <p className="text-2xl font-bold text-foreground">{value}</p>
         {change !== undefined && (
           <p
             className={cn(
               'mt-1 text-xs font-medium',
-              isPositive && 'text-emerald-600',
-              isNegative && 'text-red-600',
+              isPositive && 'text-success-foreground',
+              isNegative && 'text-destructive-foreground',
               !isPositive && !isNegative && 'text-muted-foreground',
             )}
           >

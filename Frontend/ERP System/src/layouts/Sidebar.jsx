@@ -48,10 +48,10 @@ export function Sidebar() {
               onClick={closeMobile}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200',
                   isCollapsed && 'justify-center px-2',
                   isActive
-                    ? 'bg-sidebar-active text-sidebar-active-foreground'
+                    ? 'bg-sidebar-active text-sidebar-active-foreground shadow-sm'
                     : 'text-sidebar-foreground hover:bg-accent hover:text-accent-foreground',
                 )
               }

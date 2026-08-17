@@ -21,8 +21,8 @@ export function Navbar() {
           <Bell className="h-5 w-5" />
           <span className="absolute start-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
         </Button>
-        <div className="flex items-center gap-2 pe-2">
-          <Avatar className="h-8 w-8">
+        <div className="flex items-center gap-3 pe-3">
+          <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-primary text-primary-foreground text-xs">إ</AvatarFallback>
           </Avatar>
           <div className="hidden sm:block">

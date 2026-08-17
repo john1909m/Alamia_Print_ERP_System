@@ -48,7 +48,7 @@ export function Pagination({
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8"
+          className="h-9 w-9"
           onClick={() => onPageChange(1)}
           disabled={currentPage <= 1}
         >
@@ -57,19 +57,19 @@ export function Pagination({
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8"
+          className="h-9 w-9"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
-        <span className="px-2 text-sm">
+        <span className="px-3 text-sm font-medium text-foreground/70">
           {ar.common.page} {currentPage} {ar.common.of} {totalPages || 1}
         </span>
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8"
+          className="h-9 w-9"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
         >
@@ -78,7 +78,7 @@ export function Pagination({
         <Button
           variant="outline"
           size="icon"
-          className="h-8 w-8"
+          className="h-9 w-9"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage >= totalPages}
         >
