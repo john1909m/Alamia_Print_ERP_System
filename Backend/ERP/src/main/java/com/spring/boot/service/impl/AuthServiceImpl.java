@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void signUp(UserDto userDto) throws SystemException {
         User user=userMapper.toEntity(userDto);
-        User savedUser=userRepo.saveAndFlush(user);
+        User savedUser=userRepo.save(user);
     }
 
     @Override
@@ -43,16 +43,18 @@ public class AuthServiceImpl implements AuthService {
         String token = tokenHandler.createToken(userDto);
 
         Cookie cookie = new Cookie("access_token", token);
-        cookie.setHttpOnly(true);     // أهم حاجة
-        cookie.setSecure(true);      // true في production
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // Set to true in production with HTTPS
         cookie.setPath("/");
         cookie.setMaxAge(60 * 60 * 24); // 1 day
-        String cookieValue=String.format("%s=%s; Path=/;  Max-Age=%d; HttpOnly; Secure; SameSite=None", cookie.getName(), cookie.getValue(), cookie.getMaxAge());
+        // For localhost development with cross-origin (different ports):
+        // Modern browsers allow SameSite=None without Secure for localhost
+        cookie.setAttribute("SameSite", "Lax");
 
-        response.addHeader("Set-Cookie", cookieValue);
+        response.addCookie(cookie);
 
-
-        return new LoginResponseVM(null,userDto);
+        // Also return token in response body for frontend compatibility
+        return new LoginResponseVM(token, userDto);
     }
 
     @Override

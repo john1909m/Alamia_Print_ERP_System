@@ -12,4 +12,5 @@ export const ProductionOrdersPage = lazy(() => import('@/features/productionOrde
 export const ProductionOrderDetailPage = lazy(() => import('@/features/productionOrders/pages/ProductionOrderDetailPage'))
 export const ReportsPage = lazy(() => import('@/pages/reports/ReportsPage'))
 export const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'))
+export const UsersPage = lazy(() => import('@/features/users/UsersPage'))
 export const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))

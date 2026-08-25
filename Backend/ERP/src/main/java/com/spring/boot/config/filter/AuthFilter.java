@@ -87,6 +87,6 @@ public class AuthFilter extends OncePerRequestFilter {
         System.out.println("shouldNotFilter: " + request.getRequestURI());
         System.out.println("Passed security config: " + request.getRequestURI());
 
-        return uri.startsWith("/auth/")||uri.startsWith("/store/get/name/");
+        return uri.startsWith("/api/auth/");
     }
 }

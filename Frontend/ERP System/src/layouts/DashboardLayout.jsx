@@ -3,7 +3,8 @@ import { Sidebar } from "@/layouts/Sidebar"
 import { Navbar } from "@/layouts/Navbar"
 import { useSidebar } from "@/hooks/useSidebar"
 import { useAuth } from "@/context/AuthContext"
-import { useNavigate, useEffect } from "react"
+import { useNavigate } from 'react-router-dom'
+import { useEffect } from "react"
 import { cn } from "@/utils/cn"
 
 export function DashboardLayout() {

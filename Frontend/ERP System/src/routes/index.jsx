@@ -1,8 +1,9 @@
-﻿// src/routes/index.jsx
-import { createBrowserRouter } from 'react-router-dom'
+// src/routes/index.jsx
+import { createBrowserRouter, Outlet } from 'react-router-dom'
 import { DashboardLayout } from '@/layouts/DashboardLayout'
 import { LazyPage } from '@/routes/LazyPage'
 import { LoginPage } from '@/pages/login/LoginPage'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { AuthProvider } from '@/context/AuthContext'
 import {
   DashboardPage,
@@ -17,21 +18,35 @@ import {
   ReportsPage,
   SettingsPage,
   NotFoundPage,
+  UsersPage,
 } from '@/routes/lazyPages'
 
 export const router = createBrowserRouter([
   {
-    element: <AuthProvider />,
+    path: '/',
+    element: (
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
+    ),
     children: [
       {
-        path: '/login',
-        element: <LazyPage>
-          <LoginPage />
-        </LazyPage>,
+        path: 'login',
+        element: (
+          <LazyPage>
+            <LoginPage />
+          </LazyPage>
+        ),
       },
       {
-        path: '/',
-        element: <DashboardLayout />,
+        path: '',
+        element: (
+          <ProtectedRoute>
+            <LazyPage>
+              <DashboardLayout />
+            </LazyPage>
+          </ProtectedRoute>
+        ),
         children: [
           {
             index: true,
@@ -118,6 +133,14 @@ export const router = createBrowserRouter([
             element: (
               <LazyPage>
                 <SettingsPage />
+              </LazyPage>
+            ),
+          },
+          {
+            path: 'users',
+            element: (
+              <LazyPage>
+                <UsersPage />
               </LazyPage>
             ),
           },

@@ -1,4 +1,4 @@
-﻿// src/services/api.js
+// src/services/api.js
 import axios from 'axios'
 import { APP_NAME } from '@/constants/app'
 
@@ -22,7 +22,7 @@ apiClient.interceptors.request.use(
       data: config.data,
       headers: config.headers,
     })
-    
+
     return config
   },
   (error) => {
@@ -34,7 +34,6 @@ apiClient.interceptors.request.use(
 // Interceptor for Response
 apiClient.interceptors.response.use(
   (response) => {
-    // Log API Response
     console.log('✅ API Response:', {
       status: response.status,
       url: response.config.url,
@@ -46,79 +45,72 @@ apiClient.interceptors.response.use(
     const status = error?.response?.status
     const data = error?.response?.data
     const message = getErrorMessage(status, data)
-    
-    // Log API Error
+
     console.error('❌ API Error:', {
       status: status,
       message: message,
       data: data,
       config: error?.config,
     })
-    
-    // If token expired or invalid, redirect to login
+
+    // ✅ لو 401، نرمي error عشان الـ AuthContext يتعامل معاها
+    // مش بنعمل redirect هنا عشان نمنع الـ loop
     if (status === 401) {
-      console.warn('🔒 Token expired or invalid, redirecting to login...')
-      // Avoid redirecting on login requests
-      if (!error.config.url?.includes('/auth/login')) {
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login'
-        }
-      }
+      console.warn('🔒 Token expired or invalid')
     }
-    
+
     const normalizedError = new Error(message)
     normalizedError.status = status
     normalizedError.details = data
     return Promise.reject(normalizedError)
   }
 )
-
 // Utility functions for normalizing responses
 export const normalizeEntityResponse = (payload) => {
   console.log('📦 Normalizing entity:', payload)
-  
+
   if (!payload) return null
-  
+
   if (payload.data) {
     return payload.data
   }
-  
+
   if (payload?.content && Array.isArray(payload.content)) {
     return payload.content[0] || null
   }
-  
+
   if (typeof payload === 'object' && !Array.isArray(payload)) {
     return payload
   }
-  
+
   return payload
 }
 
 export const normalizePageResponse = (payload) => {
   console.log('📄 Normalizing page:', payload)
-  
+
   if (!payload) return []
-  
+
   if (Array.isArray(payload)) {
     return payload
   }
-  
+
   if (payload?.content && Array.isArray(payload.content)) {
     return payload.content
   }
-  
+
   if (payload?.data?.content && Array.isArray(payload.data.content)) {
     return payload.data.content
   }
-  
+
   if (payload?.items && Array.isArray(payload.items)) {
     return payload.items
   }
-  
+
   if (typeof payload === 'object' && !Array.isArray(payload)) {
     return [payload]
   }
-  
+
   return []
 }
 
@@ -166,6 +158,7 @@ productionOrders: '/production-orders',
 reports: '/reports',
 dashboard: '/dashboard',
 settings: '/settings',
+users: '/users',
 }
 
 export { APP_NAME }

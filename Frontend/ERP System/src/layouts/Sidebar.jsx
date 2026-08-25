@@ -52,26 +52,28 @@ export function Sidebar() {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-          {NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/'}
-              onClick={closeMobile}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200',
-                  isCollapsed && 'justify-center px-2',
-                  isActive
-                    ? 'bg-sidebar-active text-sidebar-active-foreground shadow-sm'
-                    : 'text-sidebar-foreground hover:bg-accent hover:text-accent-foreground',
-                )
-              }
-            >
-              <item.icon className="h-5 w-5 shrink-0" />
-              {!isCollapsed && <span className="truncate">{item.label}</span>}
-            </NavLink>
-          ))}
+          {NAV_ITEMS
+            .filter(item => item.path !== '/users' || user.role === 'MANAGER')
+            .map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/'}
+                onClick={closeMobile}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200',
+                    isCollapsed && 'justify-center px-2',
+                    isActive
+                      ? 'bg-sidebar-active text-sidebar-active-foreground shadow-sm'
+                      : 'text-sidebar-foreground hover:bg-accent hover:text-accent-foreground',
+                  )
+                }
+              >
+                <item.icon className="h-5 w-5 shrink-0" />
+                {!isCollapsed && <span className="truncate">{item.label}</span>}
+              </NavLink>
+            ))}
         </nav>
 
         {!isTablet && (

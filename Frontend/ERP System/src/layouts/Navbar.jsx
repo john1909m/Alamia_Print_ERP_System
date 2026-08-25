@@ -1,19 +1,22 @@
-﻿import { Menu, Bell, Search, LogOut } from "lucide-react"
+// src/layouts/Navbar.jsx
+import { Menu, Bell, Search, LogOut } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ar } from "@/constants/ar"
 import { useSidebar } from "@/hooks/useSidebar"
 import { useAuth } from "@/context/AuthContext"
+import { useNavigate } from 'react-router-dom'
 import { cn } from "@/utils/cn"
 
 export function Navbar() {
   const { isCollapsed, isTablet, setMobileOpen } = useSidebar()
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   const handleLogout = async () => {
     await logout()
-    // The logout function in auth context already navigates to login
+    navigate('/login', { replace: true })
   }
 
   return (

@@ -9,4 +9,5 @@ export const ROUTES = {
   PRODUCTION_ORDERS: '/production-orders',
   REPORTS: '/reports',
   SETTINGS: '/settings',
+  USERS: '/users',
 }

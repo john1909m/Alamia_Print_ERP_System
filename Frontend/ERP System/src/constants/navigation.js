@@ -9,9 +9,11 @@ import {
   Factory,
   BarChart3,
   Settings,
+  User,
 } from 'lucide-react'
 import { ROUTES } from '@/constants/routes'
 import { ar } from '@/constants/ar'
+import { useAuth } from '@/context/AuthContext'
 
 export const NAV_ITEMS = [
   { label: ar.nav.dashboard, path: ROUTES.DASHBOARD, icon: LayoutDashboard },
@@ -24,4 +26,5 @@ export const NAV_ITEMS = [
   { label: ar.nav.productionOrders, path: ROUTES.PRODUCTION_ORDERS, icon: Factory },
   // { label: ar.nav.reports, path: ROUTES.REPORTS, icon: BarChart3 },
   // { label: ar.nav.settings, path: ROUTES.SETTINGS, icon: Settings },
+  { label: ar.nav.users, path: ROUTES.USERS, icon: User },
 ]
