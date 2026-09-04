@@ -10,7 +10,16 @@ export const createUserSchema = (messages) => {
     phoneNumber: z
       .string()
       .optional()
-      .refine((val) => !val || phoneRegex.test(val.replace(/[\s-]/g, '')), {
+      .nullable()
+      .transform((val) => {
+        // لو القيمة فاضية أو null أو undefined => نرجع undefined عشان تترمى من الـ object
+        if (!val || val.trim() === '') {
+          return undefined
+        }
+        // لو فيها قيمة ننظفها من المسافات والـ dashes
+        return val.replace(/[\s-]/g, '')
+      })
+      .refine((val) => !val || phoneRegex.test(val), {
         message: messages.phoneInvalid,
       }),
     password: z.string().min(6, messages.passwordMin),
@@ -21,7 +30,27 @@ export const createUserSchema = (messages) => {
 export const defaultUserValues = {
   name: '',
   email: '',
-  phoneNumber: '',
+  phoneNumber: '', // فاضية عادي
   password: '',
   role: '',
+}
+
+// ✅ الـ function اللي هتنضف الـ object قبل ما يتبعت للـ backend
+export const sanitizeUserData = (data) => {
+  const sanitized = { ...data }
+  
+  // نشيل أي key قيمتها null أو undefined أو empty string
+  Object.keys(sanitized).forEach((key) => {
+    const value = sanitized[key]
+    if (
+      value === null ||
+      value === undefined ||
+      value === '' ||
+      (typeof value === 'string' && value.trim() === '')
+    ) {
+      delete sanitized[key]
+    }
+  })
+  
+  return sanitized
 }

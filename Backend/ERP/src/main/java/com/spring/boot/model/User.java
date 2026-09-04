@@ -2,17 +2,15 @@ package com.spring.boot.model;
 
 import com.spring.boot.enums.Role;
 import jakarta.persistence.*;
-import lombok.Generated;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @RequiredArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
-public class User {
+public class User extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

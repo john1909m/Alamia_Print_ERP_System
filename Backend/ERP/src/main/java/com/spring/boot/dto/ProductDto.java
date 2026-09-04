@@ -2,6 +2,8 @@ package com.spring.boot.dto;
 
 import com.spring.boot.enums.ProductType;
 import com.spring.boot.dto.ProductionOrderDto;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
@@ -40,5 +42,9 @@ public class ProductDto {
     private Double width;
 
     private Double height;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
 
 }

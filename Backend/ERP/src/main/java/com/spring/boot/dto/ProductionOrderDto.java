@@ -5,6 +5,7 @@ import com.spring.boot.model.Paper;
 import com.spring.boot.model.Product;
 import com.spring.boot.enums.ProductionStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,5 +59,9 @@ public class ProductionOrderDto {
     private ProductionStatus status;
 
     private String description;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
 
 }

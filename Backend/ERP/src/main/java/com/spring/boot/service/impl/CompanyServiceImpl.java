@@ -9,6 +9,8 @@ import com.spring.boot.exception.ResourceNotFoundException;
 import com.spring.boot.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,10 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -34,14 +36,25 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
+    private final MessageSource messageSource;
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    private String getMessage(String key) {
+        Locale locale = LocaleContextHolder.getLocale();
+        return messageSource.getMessage(key, null, key, locale);
+    }
 
     @Override
     @Transactional
     public CompanyDto create(CompanyDto companyDto) {
         log.info("Creating new company with name: {}", companyDto.getName());
+
+        if (companyDto.getName() == null || companyDto.getName().trim().isEmpty()) {
+            throw new RuntimeException(getMessage("Company.name.is.required"));
+        }
+
         validateDuplicateName(companyDto.getName(), null);
         Company company = companyMapper.toEntity(companyDto);
         Company savedCompany = companyRepository.save(company);
@@ -54,16 +67,22 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyDto update(Long id, CompanyDto companyDto) {
         log.info("Updating company with id: {}", id);
         Company existingCompany = findCompanyOrThrow(id);
-        // Ensure DTO has id to prevent nulling during merge
+
         if (companyDto.getId() == null) {
             companyDto.setId(id);
         }
-        // Check for duplicate name if name is changing
+
         String currentName = existingCompany.getName();
         String newName = companyDto.getName();
+
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new RuntimeException(getMessage("Company.name.is.required"));
+        }
+
         if (!currentName.equalsIgnoreCase(newName)) {
             validateDuplicateName(newName, id);
         }
+
         companyMapper.updateEntityFromDto(companyDto, existingCompany);
         Company updatedCompany = companyRepository.save(existingCompany);
         log.info("Company updated successfully with id: {}", updatedCompany.getId());
@@ -113,29 +132,12 @@ public class CompanyServiceImpl implements CompanyService {
         return companies;
     }
 
-    /**
-     * Finds a company by ID or throws ResourceNotFoundException if not found.
-     *
-     * @param id the company ID to search for
-     * @return the found Company entity
-     * @throws ResourceNotFoundException if company with given ID is not found
-     */
     private Company findCompanyOrThrow(Long id) {
         return companyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException(getMessage("Company.not.found.with.id") + id));
     }
 
-    /**
-     * Validates that the company name is unique (excluding the optional companyId).
-     * Throws BadRequestException if a duplicate is found.
-     *
-     * @param name      the company name to validate
-     * @param excludeId the company ID to exclude from the check (null for create)
-     */
     private void validateDuplicateName(String name, Long excludeId) {
-        if (name == null || name.isBlank()) {
-            throw new BadRequestException("Company name is required");
-        }
         String jpql = "SELECT COUNT(c) FROM Company c WHERE LOWER(c.name) = LOWER(:name)";
         if (excludeId != null) {
             jpql += " AND c.id <> :excludeId";
@@ -147,30 +149,18 @@ public class CompanyServiceImpl implements CompanyService {
         }
         long count = query.getSingleResult();
         if (count > 0) {
-            throw new BadRequestException("Company name already exists: " + name);
+            throw new RuntimeException(getMessage("Company.name.already.exists") + name);
         }
     }
 
-    /**
-     * Validates that it is safe to delete the company (no related Products or Production Orders).
-     * Throws BadRequestException if related entities exist.
-     *
-     * @param companyId the company ID to validate
-     */
     private void validateDelete(Long companyId) {
         boolean hasRelatedProducts = hasRelatedProducts(companyId);
         boolean hasRelatedProductionOrders = hasRelatedProductionOrders(companyId);
         if (hasRelatedProducts || hasRelatedProductionOrders) {
-            throw new BadRequestException("Cannot delete company because it has related products or production orders");
+            throw new RuntimeException(getMessage("Company.cannot.delete.has.related"));
         }
     }
 
-    /**
-     * Checks if the company has any related Product entities.
-     *
-     * @param companyId the company ID
-     * @return true if related products exist
-     */
     private boolean hasRelatedProducts(Long companyId) {
         String jpql = "SELECT COUNT(p) FROM Product p WHERE p.company.id = :companyId";
         Long count = entityManager.createQuery(jpql, Long.class)
@@ -179,12 +169,6 @@ public class CompanyServiceImpl implements CompanyService {
         return count > 0;
     }
 
-    /**
-     * Checks if the company has any related ProductionOrder entities.
-     *
-     * @param companyId the company ID
-     * @return true if related production orders exist
-     */
     private boolean hasRelatedProductionOrders(Long companyId) {
         String jpql = "SELECT COUNT(po) FROM ProductionOrder po WHERE po.company.id = :companyId";
         Long count = entityManager.createQuery(jpql, Long.class)

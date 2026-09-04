@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/features/shared/components/PageHeader'
 import { DataTable } from '@/features/shared/components/DataTable'
@@ -9,6 +9,7 @@ import { FormModal } from '@/features/shared/components/FormModal'
 import { ViewDialog } from '@/features/shared/components/ViewDialog'
 import { buildViewFields } from '@/features/shared/utils/buildViewFields'
 import { LoadingState } from '@/features/shared/components/LoadingState'
+import { exportToExcel } from '@/utils/exportToExcel'
 import { ar } from '@/constants/ar'
 
 export function EntityCrudPage({
@@ -32,7 +33,9 @@ export function EntityCrudPage({
   onDelete,
   filterSlot,
   getViewFields,
-  actionsRender, // optional custom renderer for actions column
+  actionsRender,
+  exportFileName,        // ✅ اسم الـ file
+  exportColumns,         // ✅ columns اللي هتتصدر (optional)
 }) {
   const [formOpen, setFormOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -43,25 +46,10 @@ export function EntityCrudPage({
 
   const isEditing = Boolean(selectedItem?.id)
 
-  const openCreate = () => {
-    setSelectedItem(null)
-    setFormOpen(true)
-  }
-
-  const openEdit = (item) => {
-    setSelectedItem(item)
-    setFormOpen(true)
-  }
-
-  const openView = (item) => {
-    setSelectedItem(item)
-    setViewOpen(true)
-  }
-
-  const openDelete = (item) => {
-    setSelectedItem(item)
-    setDeleteOpen(true)
-  }
+  const openCreate = () => { setSelectedItem(null); setFormOpen(true) }
+  const openEdit = (item) => { setSelectedItem(item); setFormOpen(true) }
+  const openView = (item) => { setSelectedItem(item); setViewOpen(true) }
+  const openDelete = (item) => { setSelectedItem(item); setDeleteOpen(true) }
 
   const handleFormSave = useCallback(async () => {
     formRef.current?.submit()
@@ -83,11 +71,13 @@ export function EntityCrudPage({
   }
 
   const handleDelete = async () => {
-    if (selectedItem) {
-      await onDelete(selectedItem.id)
-    }
+    if (selectedItem) await onDelete(selectedItem.id)
     setDeleteOpen(false)
     setSelectedItem(null)
+  }
+
+  const handleExport = () => {
+    exportToExcel(data, exportFileName || title, exportColumns || null)
   }
 
   const tableColumns = [
@@ -97,9 +87,7 @@ export function EntityCrudPage({
       header: ar.common.actions,
       className: 'w-[80px]',
       render: (row) => {
-        if (actionsRender) {
-          return actionsRender(row, openView, openEdit, openDelete)
-        }
+        if (actionsRender) return actionsRender(row, openView, openEdit, openDelete)
         return (
           <ActionDropdown
             onView={() => openView(row)}
@@ -111,9 +99,7 @@ export function EntityCrudPage({
     },
   ]
 
-  if (loading && data.length === 0) {
-    return <LoadingState text={ar.common.loading} />
-  }
+  if (loading && data.length === 0) return <LoadingState text={ar.common.loading} />
 
   return (
     <div className="space-y-6">
@@ -122,10 +108,19 @@ export function EntityCrudPage({
         description={description}
         breadcrumb={breadcrumb}
         actions={
-          <Button onClick={openCreate}>
-            <Plus className="h-4 w-4" />
-            {addLabel}
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* ✅ زر الـ Export */}
+            {data.length > 0 && (
+              <Button variant="outline" onClick={handleExport}>
+                <Download className="h-4 w-4" />
+                {ar.common.export || 'تصدير Excel'}
+              </Button>
+            )}
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4" />
+              {addLabel}
+            </Button>
+          </div>
         }
       />
 
@@ -144,10 +139,7 @@ export function EntityCrudPage({
 
       <FormModal
         open={formOpen}
-        onOpenChange={(open) => {
-          setFormOpen(open)
-          if (!open) setSelectedItem(null)
-        }}
+        onOpenChange={(open) => { setFormOpen(open); if (!open) setSelectedItem(null) }}
         title={isEditing ? formTitles.edit : formTitles.add}
         onSubmit={handleFormSave}
         loading={saving}
@@ -164,11 +156,7 @@ export function EntityCrudPage({
         open={viewOpen}
         onOpenChange={setViewOpen}
         title={viewTitle}
-        fields={
-          getViewFields
-            ? getViewFields(selectedItem)
-            : buildViewFields(selectedItem, viewLabels)
-        }
+        fields={getViewFields ? getViewFields(selectedItem) : buildViewFields(selectedItem, viewLabels)}
       />
 
       <DeleteDialog

@@ -2,6 +2,8 @@ package com.spring.boot.dto;
 
 import com.spring.boot.dto.ProductDto;
 import com.spring.boot.dto.ProductionOrderDto;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.validation.constraints.Email;
@@ -46,4 +48,7 @@ public class CompanyDto {
     private List<ProductDto> products;
 
     private List<ProductionOrderDto> orders;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

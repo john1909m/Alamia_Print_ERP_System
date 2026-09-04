@@ -623,17 +623,17 @@ export default function ProductionOrdersPage() {
         </div>
       )}
 
-      {/* ✅ Modal التأكيد - يعرض نفس الرقم من الـ Detail Page */}
+      {/* ✅ Modal التأكيد - SCROLLABLE */}
       {showConfirmModal && confirmData && (
         <div 
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           onClick={() => setShowConfirmModal(false)}
         >
           <div 
-            className="bg-white rounded-lg w-full max-w-2xl p-6 m-4 shadow-2xl"
+            className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-4 sticky top-0 bg-white z-10 pb-2 border-b">
               <h2 className="text-xl font-bold text-blue-700">📋 تأكيد أمر الإنتاج</h2>
               <button
                 type="button"
@@ -644,7 +644,7 @@ export default function ProductionOrdersPage() {
               </button>
             </div>
             
-            {/* التفاصيل */}
+            {/* التفاصيل - كل المحتوى جوه الـ overflow-y-auto */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 p-4 bg-green-50 rounded-lg border border-green-200">
                 <div>
@@ -727,7 +727,8 @@ export default function ProductionOrdersPage() {
               </div>
             </div>
             
-            <div className="flex gap-2 mt-6 pt-4 border-t">
+            {/* الأزرار ثابتة في الآخر */}
+            <div className="flex gap-2 mt-6 pt-4 border-t sticky bottom-0 bg-white">
               <Button 
                 type="button"
                 onClick={handleConfirmCreate}

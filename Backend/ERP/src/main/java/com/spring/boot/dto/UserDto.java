@@ -1,13 +1,14 @@
 package com.spring.boot.dto;
 
 import com.spring.boot.enums.Role;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class UserDto {
     private Long id;
 
@@ -20,4 +21,7 @@ public class UserDto {
     private String phoneNumber;
 
     private Role role;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
