@@ -677,7 +677,7 @@ export default function ProductionOrderDetailPage() {
               <div>
                 <span className="font-medium text-blue-700">الأوراق المطلوبة (محسوبة):</span>
                 <div className="font-bold text-xl text-blue-600">
-                  {maxLeaflets > 0 ? Math.ceil(order.quantity / maxLeaflets) : 'غير محدد'}
+                  {maxLeaflets > 0 ? Math.ceil(order.quantity / (maxLeaflets/2)) : 'غير محدد'}
                 </div>
               </div>
               <div>

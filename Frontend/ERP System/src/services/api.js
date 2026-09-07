@@ -1,6 +1,7 @@
 // src/services/api.js
 import axios from 'axios'
 import { APP_NAME } from '@/constants/app'
+import { triggerToast } from '@/features/shared/components/Toast'
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
@@ -44,7 +45,16 @@ apiClient.interceptors.response.use(
   (error) => {
     const status = error?.response?.status
     const data = error?.response?.data
-    const message = getErrorMessage(status, data)
+
+    // Extract Arabic message if available
+    let message
+    if (data && data.message_ar) {
+      message = data.message_ar
+      // Show toast with Arabic backend message
+      triggerToast(message, { duration: 6000 })
+    } else {
+      message = getErrorMessage(status, data)
+    }
 
     console.error('❌ API Error:', {
       status: status,

@@ -348,7 +348,7 @@ export default function ProductionOrdersPage() {
         await loadData();
       } catch (error) {
         console.error('Error deleting production order:', error);
-        alert('حدث خطأ أثناء الحذف');
+        
       }
     }
   };
