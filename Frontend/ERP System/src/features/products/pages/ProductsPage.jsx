@@ -29,7 +29,7 @@ const columns = [
     key: 'companyName', 
     header: ar.common?.company || 'Company', 
     sortable: true,
-    render: (row) => row.companyName || 'غير محدد' // Fallback
+    render: (row) => row.companyName || 'غير محدد'
   },
   {
     key: 'category',
@@ -41,8 +41,8 @@ const columns = [
       </span>
     ),
   },
-  { key: 'width', header: ar.products?.width || 'Width', sortable: true },      // ✅ جديد
-  { key: 'height', header: ar.products?.height || 'Height', sortable: true },   // ✅ جديد
+  { key: 'width', header: ar.products?.width || 'Width', sortable: true },
+  { key: 'height', header: ar.products?.height || 'Height', sortable: true },
   {
     key: 'status',
     header: ar.common?.status || 'Status',
@@ -58,7 +58,7 @@ function buildProductViewFields(item) {
     { label: ar.products?.productCode || 'Code', value: item.productCode || '-' },
     { label: ar.common?.company || 'Company', value: item.companyName || 'غير محدد' },
     { label: ar.products?.productType || 'Type', value: getProductTypeLabel(item.category) },
-    { label: ar.products?.width || 'Width', value: item.width || '-' },      // ✅ جديد
+    { label: ar.products?.width || 'Width', value: item.width || '-' },
     { label: ar.products?.height || 'Height', value: item.height || '-' },
     { label: ar.common?.status || 'Status', value: STATUS_LABELS?.[item.status] || item.status },
     { label: ar.products?.description || 'Description', value: item.description || '-' },
@@ -67,7 +67,14 @@ function buildProductViewFields(item) {
 }
 
 export default function ProductsPage() {
-  const { data, loading, create, update, remove } = useEntityCrud(productService)
+  const { data, loading, create, update, remove, reload } = useEntityCrud(productService)
+
+  const handleImport = async (importData) => {
+    for (const item of importData) {
+      await create(item)
+    }
+    await reload()
+  }
 
   return (
     <EntityCrudPage
@@ -94,6 +101,27 @@ export default function ProductsPage() {
       onCreate={create}
       onUpdate={update}
       onDelete={remove}
+      // ✅ Import
+      importColumns={[
+        { key: 'productName', header: 'productName' },
+        { key: 'productCode', header: 'productCode' },
+        { key: 'companyName', header: 'companyName' },
+        { key: 'category', header: 'category' },
+        { key: 'width', header: 'width' },
+        { key: 'height', header: 'height' },
+        { key: 'description', header: 'description' },
+      ]}
+      importTemplateHeaders={[
+        'productName',
+        'productCode',
+        'companyName',
+        'category',
+        'width',
+        'height',
+        'description',
+      ]}
+      importFileName="products"
+      onImport={handleImport}
     />
   )
 }

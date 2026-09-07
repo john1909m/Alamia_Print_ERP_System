@@ -12,7 +12,14 @@ const columns = [
 ]
 
 export default function CompaniesPage() {
-  const { data, loading, create, update, remove } = useEntityCrud(companyService)
+  const { data, loading, create, update, remove, reload } = useEntityCrud(companyService)
+
+  const handleImport = async (importData) => {
+    for (const item of importData) {
+      await create(item)
+    }
+    await reload()
+  }
 
   return (
     <EntityCrudPage
@@ -45,6 +52,25 @@ export default function CompaniesPage() {
       onCreate={create}
       onUpdate={update}
       onDelete={remove}
+      // ✅ Import
+      importColumns={[
+        { key: 'name', header: 'name' },
+        { key: 'email', header: 'email' },
+        { key: 'address', header: 'address' },
+        { key: 'managerName', header: 'managerName' },
+        { key: 'phone', header: 'phone' },
+        { key: 'notes', header: 'notes' },
+      ]}
+      importTemplateHeaders={[
+       'name',
+        'email',
+        'address',
+        'managerName',
+        'phone',
+        'notes',
+      ]}
+      importFileName="companies"
+      onImport={handleImport}
     />
   )
 }

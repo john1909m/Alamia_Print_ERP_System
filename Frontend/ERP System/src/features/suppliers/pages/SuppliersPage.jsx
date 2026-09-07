@@ -31,13 +31,20 @@ const columns = [
 ]
 
 export default function SuppliersPage() {
-  const { data, loading, create, update, remove } = useEntityCrud(supplierService)
+  const { data, loading, create, update, remove, reload } = useEntityCrud(supplierService)
+
+  const handleImport = async (importData) => {
+    for (const item of importData) {
+      await create(item)
+    }
+    await reload()
+  }
 
   return (
     <EntityCrudPage
       title={ar.suppliers.title}
       description={ar.suppliers.description}
-      breadcrumb={[ { label: ar.nav.suppliers } ]}
+      breadcrumb={[{ label: ar.nav.suppliers }]}
       addLabel={ar.suppliers.add}
       formTitles={{ add: ar.suppliers.addForm, edit: ar.suppliers.editForm }}
       deleteLabels={{
@@ -59,6 +66,23 @@ export default function SuppliersPage() {
       onCreate={create}
       onUpdate={update}
       onDelete={remove}
+      // ✅ Import
+      importColumns={[
+        { key: 'name', header: 'name' },
+        { key: 'phone', header: 'phone' },
+        { key: 'email', header: 'email' },
+        { key: 'address', header: 'address' },
+        { key: 'type', header: 'type' },
+      ]}
+      importTemplateHeaders={[
+        'name',
+        'phone',
+        'email',
+        'address',
+        'type',
+      ]}
+      importFileName="suppliers"
+      onImport={handleImport}
     />
   )
 }

@@ -90,20 +90,7 @@ export function Sidebar() {
           </div>
         )}
 
-        {/* User info in sidebar for non-tablet view */}
-        {!isTablet && !isCollapsed && user && (
-          <div className="mt-6 pt-4 border-t">
-            <Avatar className="h-10 w-10 mb-2">
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                {getInitials(user.name)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="text-center space-y-1">
-              <p className="text-sm font-medium">{user.name}</p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
-            </div>
-          </div>
-        )}
+       
       </aside>
     </>
   )

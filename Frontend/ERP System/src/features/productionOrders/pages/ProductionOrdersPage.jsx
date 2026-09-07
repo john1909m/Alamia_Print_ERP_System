@@ -495,7 +495,8 @@ export default function ProductionOrdersPage() {
       />
 
       {/* Search Bar */}
-      <div className="relative w-full sm:w-64">
+      <div>
+        <div className="relative w-full sm:w-64">
         <Input
           type="search"
           placeholder={ar.productionOrders?.search || 'بحث في أوامر الإنتاج...'}
@@ -513,6 +514,16 @@ export default function ProductionOrdersPage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </div>
+      <br />
+      <a href="https://ticket-generator-ten-rose.vercel.app" target="_blank" rel="noopener noreferrer">
+        <Button
+        type="button"
+      >
+        {'Ticket Generator and PO Generator'}
+      </Button>
+      </a>
+      </div>
+      
 
       {/* Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
