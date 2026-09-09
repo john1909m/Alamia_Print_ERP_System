@@ -8,10 +8,12 @@ import com.spring.boot.model.User;
 import com.spring.boot.repo.UserRepo;
 import com.spring.boot.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 //import java.util.Optional;
 
 @Service
@@ -20,13 +22,21 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepo userRepo;
 
+    private PasswordEncoder passwordEncoder;
+
     @Autowired
     private UserMapper userMapper;
 
     @Override
     public List<UserDto> getUsers() {
         List<User> users = userRepo.findAll();
-        List<UserDto> userDtos=users.stream().map(userMapper::toDto).toList();
+        List<UserDto> userDtos = users.stream()
+                .map(user -> {
+                    UserDto dto = userMapper.toDto(user);
+                    dto.setPassword(null); // ✅ إخفاء كلمة المرور
+                    return dto;
+                })
+                .collect(Collectors.toList());
         return userDtos;
     }
 
@@ -86,7 +96,7 @@ public class UserServiceImpl implements UserService {
         newUser.setName(userDto.getName().trim());
         newUser.setEmail(userDto.getEmail().trim().toLowerCase());
         newUser.setRole(userDto.getRole());
-        newUser.setPassword(userDto.getPassword());
+        newUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
         newUser.setPhoneNumber(userDto.getPhoneNumber() != null ? userDto.getPhoneNumber().trim() : null);
         newUser.setCreatedAt(LocalDateTime.now());
 

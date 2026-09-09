@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.SystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,6 +30,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private TokenHandler tokenHandler;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public void signUp(UserDto userDto) throws SystemException {
         User user=userMapper.toEntity(userDto);
@@ -39,6 +43,11 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponseVM login(LoginRequestVM loginRequestVm, HttpServletResponse response) throws SystemException {
         User user = userRepo.findByEmail(loginRequestVm.getEmail())
                 .orElseThrow(() -> new RuntimeException("User.not.found"));
+
+        if (!passwordEncoder.matches(loginRequestVm.getPassword(), user.getPassword())) {
+            throw new SystemException("User.not.found");
+        }
+
         UserDto userDto = userMapper.toDto(user);
         String token = tokenHandler.createToken(userDto);
 

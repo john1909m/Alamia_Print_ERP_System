@@ -9,9 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Data Transfer Object for Supplier entity.
- */
+import java.time.LocalDateTime;
+
+
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -38,4 +38,7 @@ public class SupplierDto {
     private String phone;
 
     private SupplierType type;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

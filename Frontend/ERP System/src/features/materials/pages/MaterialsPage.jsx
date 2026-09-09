@@ -53,7 +53,7 @@ export default function MaterialsPage() {
   }
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this material?')) {
+    if (window.confirm(ar.materials?.deleteConfirm || 'هل أنت متأكد من حذف هذه المادة؟')) {
       try {
         await materialService.delete(id)
         await loadMaterials()
@@ -64,6 +64,19 @@ export default function MaterialsPage() {
         console.error('Failed to delete material:', error)
       }
     }
+  }
+
+  const getTypeLabel = (type) => {
+    const labels = {
+      'PAPER': 'ورق',
+      'INK': 'حبر',
+      'CHEMICAL': 'كيماويات',
+      'ZINC': 'زنك',
+      'PLATE': 'لوح',
+      'GLUE': 'غراء',
+      'OTHER': 'أخرى',
+    }
+    return labels[type] || type
   }
 
   const getTypeColor = (type) => {
@@ -88,22 +101,22 @@ export default function MaterialsPage() {
       case 'CHEMICAL':
         return <ChemicalSection material={material} showForm={false} />
       default:
-        return <p className="text-sm text-gray-500">Variant management not available for this type</p>
+        return <p className="text-sm text-gray-500">لا توجد إدارة للمتغيرات لهذا النوع</p>
     }
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto" dir="rtl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Materials</h1>
-          <p className="text-sm text-gray-500">{filteredMaterials.length} items</p>
+          <h1 className="text-2xl font-bold">{ar.materials?.title || 'المواد'}</h1>
+          <p className="text-sm text-gray-500">{filteredMaterials.length} {ar.materials?.items || 'عنصر'}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <Input
             type="search"
-            placeholder="Search materials..."
+            placeholder={ar.materials?.search || 'بحث في المواد...'}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full sm:w-64"
@@ -112,7 +125,7 @@ export default function MaterialsPage() {
             setEditingMaterial(null)
             setShowMaterialForm(true)
           }}>
-            + Add Material
+            {ar.materials?.add || '+ إضافة مادة'}
           </Button>
         </div>
       </div>
@@ -123,7 +136,7 @@ export default function MaterialsPage() {
           <div className="bg-white rounded-lg w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
               <h2 className="text-xl font-semibold">
-                {editingMaterial ? 'Edit Material' : 'Add Material'}
+                {editingMaterial ? (ar.materials?.edit || 'تعديل المادة') : (ar.materials?.addForm || 'إضافة مادة جديدة')}
               </h2>
               <Button variant="ghost" size="icon" onClick={() => {
                 setShowMaterialForm(false)
@@ -147,20 +160,20 @@ export default function MaterialsPage() {
       {/* Materials Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-gray-500">Loading...</div>
+          <div className="p-8 text-center text-gray-500">{ar.common?.loading || 'جاري التحميل...'}</div>
         ) : filteredMaterials.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            {searchTerm ? 'No materials found' : 'No materials available'}
+            {searchTerm ? (ar.materials?.noResults || 'لا توجد نتائج') : (ar.materials?.empty || 'لا توجد مواد')}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b">
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Name</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Type</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Unit</th>
-                  <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">Actions</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">{ar.materials?.name || 'الاسم'}</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">{ar.materials?.type || 'النوع'}</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">{ar.materials?.unit || 'الوحدة'}</th>
+                  <th className="px-4 py-3 text-center text-sm font-medium text-gray-600">{ar.common?.actions || 'الإجراءات'}</th>
                 </tr>
               </thead>
               <tbody>
@@ -170,7 +183,7 @@ export default function MaterialsPage() {
                       <td className="px-4 py-3 font-medium">{material.name}</td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(material.type)}`}>
-                          {material.type}
+                          {getTypeLabel(material.type)}
                         </span>
                       </td>
                       <td className="px-4 py-3">
@@ -188,7 +201,7 @@ export default function MaterialsPage() {
                               setShowMaterialForm(true)
                             }}
                           >
-                            Edit
+                            {ar.common?.edit || 'تعديل'}
                           </Button>
                           <Button
                             variant="ghost"
@@ -196,7 +209,7 @@ export default function MaterialsPage() {
                             className="text-red-500"
                             onClick={() => handleDelete(material.id)}
                           >
-                            Delete
+                            {ar.common?.delete || 'حذف'}
                           </Button>
                           <Button
                             variant="ghost"
