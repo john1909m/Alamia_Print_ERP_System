@@ -7,6 +7,8 @@ import com.spring.boot.repo.ChemicalRepository;
 import com.spring.boot.service.interfaces.ChemicalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -35,6 +37,7 @@ public class ChemicalServiceImpl implements ChemicalService {
     }
 
     @Override
+    @CacheEvict(value = "chemicals", allEntries = true)
     public ChemicalDto create(ChemicalDto chemicalDto) {
         log.info("Creating new chemical");
 
@@ -71,6 +74,7 @@ public class ChemicalServiceImpl implements ChemicalService {
     }
 
     @Override
+    @CacheEvict(value = "chemicals", allEntries = true)
     public ChemicalDto update(Long id, ChemicalDto chemicalDto) {
         log.info("Updating chemical with id: {}", id);
 
@@ -110,6 +114,7 @@ public class ChemicalServiceImpl implements ChemicalService {
     }
 
     @Override
+    @CacheEvict(value = "chemicals", key = "#id")
     public void delete(Long id) {
         log.info("Deleting chemical with id: {}", id);
 
@@ -126,6 +131,7 @@ public class ChemicalServiceImpl implements ChemicalService {
     }
 
     @Override
+    @Cacheable(value = "chemicals",key = "#id")
     public ChemicalDto findById(Long id) {
         log.info("Fetching chemical with id: {}", id);
         Chemical chemical = chemicalRepository.findById(id)
@@ -135,6 +141,7 @@ public class ChemicalServiceImpl implements ChemicalService {
     }
 
     @Override
+    @Cacheable(value = "chemicals")
     public List<ChemicalDto> findAll() {
         log.info("Fetching all chemicals");
         List<ChemicalDto> chemicals = chemicalRepository.findAll().stream()

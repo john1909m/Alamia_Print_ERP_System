@@ -7,6 +7,8 @@ import com.spring.boot.repo.MaterialRepository;
 import com.spring.boot.service.interfaces.MaterialService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -36,6 +38,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
+    @CacheEvict(value = "materials", allEntries = true)
     public MaterialDto create(MaterialDto materialDto) {
         log.info("Creating new material with name: {}", materialDto.getName());
 
@@ -72,6 +75,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
+    @CacheEvict(value = "materials", allEntries = true)
     public MaterialDto update(Long id, MaterialDto materialDto) {
         log.info("Updating material with id: {}", id);
 
@@ -109,6 +113,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
+    @CacheEvict(value = "materials", key = "#id")
     public void delete(Long id) {
         log.info("Deleting material with id: {}", id);
 
@@ -125,6 +130,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
+    @Cacheable(value = "materials",key = "#id")
     public MaterialDto findById(Long id) {
         log.info("Fetching material with id: {}", id);
         Material material = materialRepository.findById(id)
@@ -134,6 +140,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
+    @Cacheable(value = "materials")
     public List<MaterialDto> findAll() {
         log.info("Fetching all materials");
         List<MaterialDto> materials = materialRepository.findAll().stream()

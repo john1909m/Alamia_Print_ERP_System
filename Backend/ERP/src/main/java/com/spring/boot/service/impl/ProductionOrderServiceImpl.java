@@ -11,6 +11,8 @@ import com.spring.boot.service.interfaces.*;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -47,6 +49,7 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
     }
 
     @Override
+    @CacheEvict(value = "productionOrders", allEntries = true)
     public ProductionOrderDto create(ProductionOrderDto productionOrderDto) {
         log.info("Creating new production order with description: {}", productionOrderDto.getDescription());
 
@@ -168,6 +171,7 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
     Boolean stockAdjusted = false;
 
     @Override
+    @CacheEvict(value = "productionOrders", allEntries = true)
     public ProductionOrderDto update(Long id, ProductionOrderDto productionOrderDto) {
         log.info("Updating production order with id: {}", id);
 
@@ -318,6 +322,7 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
     }
 
     @Override
+    @CacheEvict(value = "productionOrders", key = "#id")
     public void delete(Long id) {
         log.info("Deleting production order with id: {}", id);
 
@@ -335,6 +340,7 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
     }
 
     @Override
+    @Cacheable(value = "productionOrders", key = "#id")
     public ProductionOrderDto findById(Long id) {
         log.info("Fetching production order with id: {}", id);
         ProductionOrder productionOrder = productionOrderRepository.findById(id)
@@ -344,6 +350,7 @@ public class ProductionOrderServiceImpl implements ProductionOrderService {
     }
 
     @Override
+    @Cacheable(value = "productionOrders")
     public List<ProductionOrderDto> findAll() {
         log.info("Fetching all production orders");
         List<ProductionOrderDto> productionOrders = productionOrderRepository.findAll().stream()

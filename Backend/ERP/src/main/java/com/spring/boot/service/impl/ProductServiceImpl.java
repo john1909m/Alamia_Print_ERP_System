@@ -7,6 +7,8 @@ import com.spring.boot.repo.ProductRepository;
 import com.spring.boot.service.interfaces.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -35,6 +37,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(value = "products", allEntries = true)
     public ProductDto create(ProductDto productDto) {
         log.info("Creating new product with name: {}", productDto.getName());
 
@@ -80,6 +83,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(value = "products", allEntries = true)
     public ProductDto update(Long id, ProductDto productDto) {
         log.info("Updating product with id: {}", id);
 
@@ -135,6 +139,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(value = "products", key = "#id")
     public void delete(Long id) {
         log.info("Deleting product with id: {}", id);
 
@@ -151,6 +156,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "products",key = "#id")
     public ProductDto findById(Long id) {
         log.info("Fetching product with id: {}", id);
         Product product = productRepository.findById(id)
@@ -160,6 +166,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "products")
     public List<ProductDto> findAll() {
         log.info("Fetching all products");
         List<ProductDto> products = productRepository.findAll().stream()

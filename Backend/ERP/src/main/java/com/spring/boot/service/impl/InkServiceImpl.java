@@ -7,6 +7,8 @@ import com.spring.boot.repo.InkRepository;
 import com.spring.boot.service.interfaces.InkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -35,6 +37,7 @@ public class InkServiceImpl implements InkService {
     }
 
     @Override
+    @CacheEvict(value = "inks", allEntries = true)
     public InkDto create(InkDto inkDto) {
         log.info("Creating new ink");
 
@@ -71,6 +74,7 @@ public class InkServiceImpl implements InkService {
     }
 
     @Override
+    @CacheEvict(value = "inks", allEntries = true)
     public InkDto update(Long id, InkDto inkDto) {
         log.info("Updating ink with id: {}", id);
 
@@ -106,6 +110,7 @@ public class InkServiceImpl implements InkService {
     }
 
     @Override
+    @CacheEvict(value = "inks", key = "#id")
     public void delete(Long id) {
         log.info("Deleting ink with id: {}", id);
 
@@ -122,6 +127,7 @@ public class InkServiceImpl implements InkService {
     }
 
     @Override
+    @Cacheable(value = "inks",key = "#id")
     public InkDto findById(Long id) {
         log.info("Fetching ink with id: {}", id);
         Ink ink = inkRepository.findById(id)
@@ -131,6 +137,7 @@ public class InkServiceImpl implements InkService {
     }
 
     @Override
+    @Cacheable(value = "inks")
     public List<InkDto> findAll() {
         log.info("Fetching all inks");
         List<InkDto> inks = inkRepository.findAll().stream()

@@ -7,6 +7,8 @@ import com.spring.boot.repo.PaperRepository;
 import com.spring.boot.service.interfaces.PaperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -35,6 +37,7 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
+    @CacheEvict(value = "papers", allEntries = true)
     public PaperDto create(PaperDto paperDto) {
         log.info("Creating new paper");
 
@@ -94,6 +97,7 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
+    @CacheEvict(value = "papers", allEntries = true)
     public PaperDto update(Long id, PaperDto paperDto) {
         log.info("Updating paper with id: {}", id);
 
@@ -168,6 +172,7 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
+    @CacheEvict(value = "papers", key = "#id")
     public void delete(Long id) {
         log.info("Deleting paper with id: {}", id);
 
@@ -184,6 +189,7 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
+    @Cacheable(value = "papers",key = "#id")
     public PaperDto findById(Long id) {
         log.info("Fetching paper with id: {}", id);
         Paper paper = paperRepository.findById(id)
@@ -193,6 +199,7 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
+    @Cacheable(value = "papers")
     public List<PaperDto> findAll() {
         log.info("Fetching all papers");
         List<PaperDto> papers = paperRepository.findAll().stream()

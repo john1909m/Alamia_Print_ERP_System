@@ -9,6 +9,8 @@ import com.spring.boot.exception.ResourceNotFoundException;
 import com.spring.boot.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -24,11 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-/**
- * Service implementation for Company entity.
- * Implements clean service architecture with proper transaction management,
- * error handling, and business rule validation.
- */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -48,6 +46,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "companies", allEntries = true)
     public CompanyDto create(CompanyDto companyDto) {
         log.info("Creating new company with name: {}", companyDto.getName());
 
@@ -64,6 +63,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "companies", allEntries = true)
     public CompanyDto update(Long id, CompanyDto companyDto) {
         log.info("Updating company with id: {}", id);
         Company existingCompany = findCompanyOrThrow(id);
@@ -91,6 +91,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "companies", key = "#id")
     public void delete(Long id) {
         log.info("Deleting company with id: {}", id);
         Company company = findCompanyOrThrow(id);
@@ -101,6 +102,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "companies", key = "#id")
     public CompanyDto findById(Long id) {
         log.info("Fetching company with id: {}", id);
         Company company = findCompanyOrThrow(id);
@@ -110,6 +112,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "companies")
     public List<CompanyDto> findAll() {
         log.info("Fetching all companies");
         List<CompanyDto> companies = companyRepository.findAll().stream()
@@ -121,6 +124,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional(readOnly = true)
+//    @Cacheable(value = "companies", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
     public Page<CompanyDto> findAll(Pageable pageable) {
         log.info("Fetching paginated companies with page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         Page<CompanyDto> companies = companyRepository.findAll(pageable)

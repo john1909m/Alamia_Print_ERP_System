@@ -7,6 +7,8 @@ import com.spring.boot.repo.SupplierRepository;
 import com.spring.boot.service.interfaces.SupplierService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -35,6 +37,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    @CacheEvict(value = "suppliers", allEntries = true)
     public SupplierDto create(SupplierDto supplierDto) {
         log.info("Creating new supplier with name: {}", supplierDto.getName());
 
@@ -87,6 +90,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    @CacheEvict(value = "suppliers", allEntries = true)
     public SupplierDto update(Long id, SupplierDto supplierDto) {
         log.info("Updating supplier with id: {}", id);
 
@@ -141,6 +145,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    @CacheEvict(value = "suppliers", key = "#id")
     public void delete(Long id) {
         log.info("Deleting supplier with id: {}", id);
 
@@ -157,6 +162,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    @Cacheable(value = "suppliers",key = "#id")
     public SupplierDto findById(Long id) {
         log.info("Fetching supplier with id: {}", id);
         Supplier supplier = supplierRepository.findById(id)
@@ -166,6 +172,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    @Cacheable(value = "suppliers")
     public List<SupplierDto> findAll() {
         log.info("Fetching all suppliers");
         List<SupplierDto> suppliers = supplierRepository.findAll().stream()

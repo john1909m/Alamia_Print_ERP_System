@@ -8,6 +8,8 @@ import com.spring.boot.model.User;
 import com.spring.boot.repo.UserRepo;
 import com.spring.boot.service.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +30,13 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Override
+    @Cacheable(value = "users")
     public List<UserDto> getUsers() {
         List<User> users = userRepo.findAll();
         List<UserDto> userDtos = users.stream()
                 .map(user -> {
                     UserDto dto = userMapper.toDto(user);
-                    dto.setPassword(null); // ✅ إخفاء كلمة المرور
+                    dto.setPassword(null);
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -41,6 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users",allEntries = true)
     public UserDto addUser(UserDto userDto) {
         if (userDto.getName() == null || userDto.getName().trim().isEmpty()) {
             throw new RuntimeException("Name.is.required");
@@ -126,6 +130,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @CacheEvict(value = "users",allEntries = true)
     public void updateUser(Long userId, UserDto userDto) {
         // 1. Check if user exists
         User existingUser = userRepo.findById(userId)
@@ -193,6 +198,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users",key = "#id")
     public void deleteUser(Long userId) {
         User existingUser=userRepo.findById(userId).orElseThrow(() ->
                 new ResourceNotFoundException("User.not.found.with.this.id"));
